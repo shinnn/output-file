@@ -13,7 +13,7 @@
     "pretest": "eslint *.js & jscs *.js",
     "test": "node test.js | tap-spec; ${npm_package_scripts_clean}",
     "coverage": "istanbul cover test.js; ${npm_package_scripts_clean}",
-    "coveralls": "${npm_package_scripts_coverage} && istanbul-coveralls"
+    "coveralls": "istanbul cover test.js && istanbul-coveralls"
   },
   "licenses": [
     {
