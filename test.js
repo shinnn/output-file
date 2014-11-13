@@ -37,7 +37,9 @@ test('outputFile()', function(t) {
     );
     t.strictEqual(
       fs.statSync('tmp/foo/bar').mode,
+      /*eslint-disable no-multi-spaces */
       process.platform === 'win32' ? /* istanbul ignore next */ 33206 : 33260,
+      /*eslint-enable no-multi-spaces */
       'should accept mkdir\'s option.'
     );
   });
@@ -55,7 +57,9 @@ test('outputFile()', function(t) {
 
   outputFile('index.js/foo', 'foo', 'utf8', function(err) {
     t.equal(
+      /*eslint-disable no-multi-spaces */
       err.code, process.platform === 'win32' ? /* istanbul ignore next */ 'EEXIST' : 'ENOTDIR',
+      /*eslint-enable no-multi-spaces */
       'should pass an error to the callback when mkdirp() fails.'
     );
     t.equal(
