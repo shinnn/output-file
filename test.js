@@ -33,14 +33,14 @@ test('outputFile()', function(t) {
     );
     t.strictEqual(
       fs.readFileSync('tmp/foo/bar', 'hex'), '00',
-      'should accept fs.writeFIle\'s option.'
+      'should accept fs.writeFile\'s options.'
     );
     t.strictEqual(
       fs.statSync('tmp/foo/bar').mode,
       /*eslint-disable no-multi-spaces */
       process.platform === 'win32' ? /* istanbul ignore next */ 33206 : 33260,
       /*eslint-enable no-multi-spaces */
-      'should accept mkdir\'s option.'
+      'should accept mkdir\'s options.'
     );
   });
 
