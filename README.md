@@ -117,6 +117,10 @@ outputFile('foo.txt', 'data', function(err, dir) {
 });
 ```
 
+## Related project
+
+* [output-file-sync](https://github.com/shinnn/output-file-sync) (synchronous version)
+
 ## License
 
 Copyright (c) 2014 [Shinnosuke Watanabe](https://github.com/shinnn)
