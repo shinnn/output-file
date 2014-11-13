@@ -1,0 +1,58 @@
+{
+  "name": "output-file",
+  "version": "0.0.0",
+  "description": "Write a file and create its ancestor directories if needed",
+  "repository": "shinnn/output-file",
+  "author": {
+    "name": "Shinnosuke Watanabe",
+    "url": "https://github.com/shinnn"
+  },
+  "scripts": {
+    "bench": "matcha benchmark.js",
+    "clean": "rimraf tmp_file tmp",
+    "pretest": "eslint *.js & jscs *.js",
+    "test": "node test.js | tap-spec; ${npm_package_scripts_clean}",
+    "coverage": "istanbul cover test.js; ${npm_package_scripts_clean}",
+    "coveralls": "${npm_package_scripts_coverage} && istanbul-coveralls"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/shinnn/output-file/blob/master/LICENSE"
+    }
+  ],
+  "files": [
+    "index.js",
+    "LICENSE"
+  ],
+  "keywords": [
+    "fs",
+    "write",
+    "async",
+    "asynchronous",
+    "output",
+    "file",
+    "mkdir",
+    "mkdirp"
+  ],
+  "dependencies": {
+    "mkdirp": "^0.5.0",
+    "one-time": "^0.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^0.9.2",
+    "fs-extra": "^0.12.0",
+    "istanbul": "^0.3.2",
+    "istanbul-coveralls": "^1.0.1",
+    "jscs": "^1.7.3",
+    "matcha": "^0.6.0",
+    "nop": "^1.0.0",
+    "rimraf": "^2.2.8",
+    "tap-spec": "^1.0.1",
+    "tape": "^3.0.3"
+  },
+  "jscsConfig": {
+    "preset": "google",
+    "maximumLineLength": 98
+  }
+}
