@@ -12,9 +12,12 @@ install:
   - ps: Install-Product node $env:nodejs_version
   - npm install --production
   - npm install nop rimraf tape
+  - npm install -g rimraf
 
 build: off
 
 test_script:
   - ps: 'node test.js # PowerShell'
+  - rimraf tmp
+  - rimraf tmp_file
   - cmd: node test.js
