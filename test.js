@@ -36,7 +36,8 @@ test('outputFile()', function(t) {
       'should accept fs.writeFIle\'s option.'
     );
     t.strictEqual(
-      fs.statSync('tmp/foo/bar').mode, 33260,
+      fs.statSync('tmp/foo/bar').mode,
+      process.platform === 'win32' ? /* istanbul ignore next */ 33206 : 33260,
       'should accept mkdir\'s option.'
     );
   });
@@ -54,7 +55,7 @@ test('outputFile()', function(t) {
 
   outputFile('index.js/foo', 'foo', 'utf8', function(err) {
     t.equal(
-      err.code, 'ENOTDIR',
+      err.code, process.platform === 'win32' ? /* istanbul ignore next */ 'EEXIST' : 'ENOTDIR',
       'should pass an error to the callback when mkdirp() fails.'
     );
     t.equal(
@@ -69,7 +70,7 @@ test('outputFile()', function(t) {
 
   t.throws(function() {
     outputFile('f/o/o', 'bar', {fs: []}, noop);
-  }, /has no method/, 'should throw an error when the option is not valid for mkdirp.');
+  }, /TypeError/, 'should throw an error when the option is not valid for mkdirp.');
 
   t.throws(function() {
     outputFile('foo', 'bar', 'baz');
