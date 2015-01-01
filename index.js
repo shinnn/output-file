@@ -9,11 +9,34 @@ var writeFile = require('fs').writeFile;
 
 var mkdirp = require('mkdirp');
 var oneTime = require('one-time');
+var xtend = require('xtend');
 
 module.exports = function outputFile(filePath, data, options, cb) {
+  var mkdirpOptions;
+  var writeFileOptions;
+
   if (arguments.length === 3) {
     cb = options;
-    options = null;
+    mkdirpOptions = null;
+    writeFileOptions = null;
+  } else {
+    options = options || {};
+
+    if (typeof options === 'string') {
+      mkdirpOptions = null;
+    } else {
+      if (options.dirMode) {
+        mkdirpOptions = xtend(options, {mode: options.dirMode});
+      } else {
+        mkdirpOptions = options;
+      }
+    }
+
+    if (options.fileMode) {
+      writeFileOptions = xtend(options, {mode: options.fileMode});
+    } else {
+      writeFileOptions = options;
+    }
   }
 
   if (typeof cb !== 'function') {
@@ -21,13 +44,6 @@ module.exports = function outputFile(filePath, data, options, cb) {
   }
 
   cb = oneTime(cb);
-
-  var mkdirpOptions;
-  if (typeof options === 'object') {
-    mkdirpOptions = options;
-  } else {
-    mkdirpOptions = null;
-  }
 
   mkdirp(dirname(filePath), mkdirpOptions, function(err, createdDirPath) {
     if (err) {
@@ -44,7 +60,7 @@ module.exports = function outputFile(filePath, data, options, cb) {
     });
   });
 
-  writeFile(filePath, data, options, function(err) {
+  writeFile(filePath, data, writeFileOptions, function(err) {
     if (err) {
       if (err.code === 'ENOENT') {
         return;

@@ -1,8 +1,8 @@
 # output-file
 
-[![Build Status](https://travis-ci.org/shinnn/output-file.svg?branch=master)](https://travis-ci.org/shinnn/output-file)
+[![Build Status](https://travis-ci.org/shinnn/output-file.svg)](https://travis-ci.org/shinnn/output-file)
 [![Build status](https://ci.appveyor.com/api/projects/status/q435g7uifts9ud1q?svg=true)](https://ci.appveyor.com/project/ShinnosukeWatanabe/output-file)
-[![Coverage Status](https://img.shields.io/coveralls/shinnn/output-file.svg)](https://coveralls.io/r/shinnn/output-file)
+[![Coverage Status](https://img.shields.io/coveralls/shinnn/output-file.svg?style=flat)](https://coveralls.io/r/shinnn/output-file)
 [![Dependency Status](https://david-dm.org/shinnn/output-file.svg)](https://david-dm.org/shinnn/output-file)
 [![devDependency Status](https://david-dm.org/shinnn/output-file/dev-status.svg)](https://david-dm.org/shinnn/output-file#info=devDependencies)
 
@@ -29,7 +29,7 @@ outputFile('foo/bar/baz.txt', 'Hi!', function(err, createdDir) {
 
 This module is very similar to [fs-extra](https://github.com/jprichardson/node-fs-extra)'s [`fs.outputFile`](https://github.com/jprichardson/node-fs-extra#outputfilefile-data-callback) but they are different in the following points:
 
-1. *output-file* passes the path of first-created directory to the second argument of its callback. [See the API document for more details.](#callbackerror-createddirectorypath)
+1. *output-file* passes the path of the directory created first to the second argument of its callback. [See the API document for more details.](#callbackerror-createddirectorypath)
 2. *output-file* throws an error immediately if it takes a wrong argument. 
    ```javascript
    var outputFile = require('output-file');
@@ -43,9 +43,9 @@ This module is very similar to [fs-extra](https://github.com/jprichardson/node-f
 
 ## Installation
 
-[![NPM version](https://badge.fury.io/js/output-file.svg)](https://www.npmjs.org/package/output-file)
+[![NPM version](https://img.shields.io/npm/v/output-file.svg?style=flat)](https://www.npmjs.com/package/output-file)
 
-[Use npm.](https://www.npmjs.org/doc/cli/npm-install.html)
+[Use npm.](https://docs.npmjs.com/cli/install)
 
 ```sh
 npm install output-file
@@ -90,6 +90,31 @@ outputFile('foo', '012345', {encoding: 'foo', mode: 33260}, function(err, dir) {
 });
 ```
 
+#### options
+
+All options for [fs.writeFile] and [mkdirp] are available.
+
+Additionally, you can use [`fileMode`](#optionsfilemode) option and [`dirMode`](#optionsdirmode) option to set different permission between the file and directories.
+
+##### options.fileMode
+
+Set modes of a file, overriding `mode` option.
+
+##### options.dirMode
+
+Set modes of directories, overriding `mode` option.
+
+```javascript
+outputFile('dir/file', 'content', {dirMode: '0745', fileMode: '0644'}, function(err) {
+  if (err) {
+    throw err;
+  }
+
+  fs.statSync('dir').mode.toString(8); //=> '40745'
+  fs.statSync('dir/file').mode.toString(8); //=> '100644'
+});
+```
+
 #### callback(*error*, *createdDirectoryPath*)
 
 *error*: `Error` if it fails to write a file or create directories, otherwise `null`  
@@ -105,7 +130,7 @@ outputFile('foo/bar/baz.txt', 'data', function(err, dir) {
     throw err;
   }
 
-  dir; // Same value as `path.resolve('foo')`
+  dir; // the same value as `path.resolve('foo')`
 });
 
 outputFile('foo.txt', 'data', function(err, dir) {

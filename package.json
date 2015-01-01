@@ -9,10 +9,9 @@
   },
   "scripts": {
     "bench": "matcha benchmark.js",
-    "clean": "rimraf tmp_file tmp",
-    "pretest": "eslint *.js & jscs *.js",
-    "test": "node test.js | tap-spec; ${npm_package_scripts_clean}",
-    "coverage": "istanbul cover test.js; ${npm_package_scripts_clean}",
+    "pretest": "jscs *.js && eslint *.js",
+    "test": "node test.js | tap-spec",
+    "coverage": "istanbul cover test.js",
     "coveralls": "istanbul cover test.js && istanbul-coveralls"
   },
   "licenses": [
@@ -37,7 +36,8 @@
   ],
   "dependencies": {
     "mkdirp": "^0.5.0",
-    "one-time": "^0.0.2"
+    "one-time": "^0.0.2",
+    "xtend": "^4.0.0"
   },
   "devDependencies": {
     "eslint": "^0.9.2",
