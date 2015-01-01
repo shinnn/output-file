@@ -55,7 +55,7 @@ module.exports = function outputFile(filePath, data, options, cb) {
       return;
     }
 
-    writeFile(filePath, data, options, function(err) {
+    writeFile(filePath, data, writeFileOptions, function(err) {
       cb(err, createdDirPath);
     });
   });

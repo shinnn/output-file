@@ -25,29 +25,30 @@ test('outputFile()', function(t) {
     });
   });
 
-  outputFile('__t_m_p__/file', '00', {
+  outputFile('tmp/foo/bar', '00', {
     encoding: 'hex',
-    mode: 33260
+    mode: '0745'
   }, function(err, dir) {
+    t.deepEqual(
+      [err, dir],
+      [null, path.resolve('tmp')],
+      'should pass a path of the directory created first to the argument.'
+    );
+
     var expected;
     /* istanbul ignore if */
     if (process.platform === 'win32') {
-      expected = 33206;
+      expected = '40666';
     } else {
-      expected = 33260;
+      expected = '40745';
     }
 
     t.deepEqual(
-      [err, dir],
-      [null, path.resolve('__t_m_p__')],
-      'should pass a path of the directory created first to the argument.'
-    );
-    t.strictEqual(
-      fs.statSync('__t_m_p__/file').mode,
-      expected,
+      [fs.statSync('tmp').mode.toString(8), fs.statSync('tmp/foo').mode.toString(8)],
+      [expected, expected],
       'should accept mkdir\'s option.'
     );
-    readRemoveFile('__t_m_p__/file', 'hex', function(err, content) {
+    readRemoveFile('tmp/foo/bar', 'hex', function(err, content) {
       t.deepEqual(
         [err, content],
         [null, '00'],
@@ -89,15 +90,15 @@ test('outputFile()', function(t) {
     );
   });
 
-  outputFile('t/m/p', 'ə', {
+  outputFile(path.resolve('t/m/p'), 'ə', {
     dirMode: '0745',
-    fileMode: '0644',
+    fileMode: '0755',
     encoding: null
   }, function(err, dir) {
     t.deepEqual(
       [err, dir],
       [null, path.resolve('t')],
-      'should create multiple directories.'
+      'should accept an absolute path as its first argument.'
     );
 
     var expected;
@@ -109,7 +110,7 @@ test('outputFile()', function(t) {
     }
 
     t.deepEqual(
-      [fs.statSync('t/m').mode.toString(8), fs.statSync('t/m').mode.toString(8)],
+      [fs.statSync('t').mode.toString(8), fs.statSync('t/m').mode.toString(8)],
       [expected, expected],
       'should reflect `dirMode` option to the directory mode.'
     );
@@ -118,7 +119,7 @@ test('outputFile()', function(t) {
     if (process.platform === 'win32') {
       expected = '100666';
     } else {
-      expected = '100644';
+      expected = '100755';
     }
 
     t.equal(
