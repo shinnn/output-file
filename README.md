@@ -1,10 +1,11 @@
 # output-file
 
+[![NPM version](https://img.shields.io/npm/v/output-file.svg?style=flat)](https://www.npmjs.com/package/output-file)
 [![Build Status](https://travis-ci.org/shinnn/output-file.svg)](https://travis-ci.org/shinnn/output-file)
 [![Build status](https://ci.appveyor.com/api/projects/status/q435g7uifts9ud1q?svg=true)](https://ci.appveyor.com/project/ShinnosukeWatanabe/output-file)
 [![Coverage Status](https://img.shields.io/coveralls/shinnn/output-file.svg?style=flat)](https://coveralls.io/r/shinnn/output-file)
-[![Dependency Status](https://david-dm.org/shinnn/output-file.svg)](https://david-dm.org/shinnn/output-file)
-[![devDependency Status](https://david-dm.org/shinnn/output-file/dev-status.svg)](https://david-dm.org/shinnn/output-file#info=devDependencies)
+[![Dependency Status](https://img.shields.io/david/shinnn/output-file.svg?style=flat&label=deps)](https://david-dm.org/shinnn/output-file)
+[![devDependency Status](https://img.shields.io/david/dev/shinnn/output-file.svg?style=flat&label=devDeps)](https://david-dm.org/shinnn/output-file#info=devDependencies)
 
 Write a file and create its ancestor directories if needed
 
@@ -43,8 +44,6 @@ This module is very similar to [fs-extra](https://github.com/jprichardson/node-f
 
 ## Installation
 
-[![NPM version](https://img.shields.io/npm/v/output-file.svg?style=flat)](https://www.npmjs.com/package/output-file)
-
 [Use npm.](https://docs.npmjs.com/cli/install)
 
 ```sh
@@ -60,7 +59,7 @@ var outputFile = require('output-file');
 ### outputFile(*path*, *data* [, *options*], *callback*)
 
 *path*: `String`  
-*data*: `String` or [`Buffer`](http://nodejs.org/api/buffer.html#buffer_class_buffer)  
+*data*: `String` or [`Buffer`](https://iojs.org/api/buffer.html#buffer_class_buffer)  
 *options*: `Object` or `String` (options for [fs.writeFile] and [mkdirp])  
 *callback*: `Function`
 
@@ -148,9 +147,9 @@ outputFile('foo.txt', 'data', function(err, dir) {
 
 ## License
 
-Copyright (c) 2014 [Shinnosuke Watanabe](https://github.com/shinnn)
+Copyright (c) 2014 - 2015 [Shinnosuke Watanabe](https://github.com/shinnn)
 
 Licensed under [the MIT License](./LICENSE).
 
-[fs.writeFile]: http://nodejs.org/api/fs.html#fs_fs_writefile_filename_data_options_callback
+[fs.writeFile]: https://iojs.org/api/fs.html#fs_fs_writefile_filename_data_options_callback
 [mkdirp]: https://github.com/substack/node-mkdirp
