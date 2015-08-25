@@ -4,18 +4,17 @@
 */
 'use strict';
 
-var dirname = require('path').dirname;
-var writeFile = require('fs').writeFile;
+const dirname = require('path').dirname;
+const writeFile = require('fs').writeFile;
 
-var mkdirp = require('mkdirp');
-var oneTime = require('one-time');
-var xtend = require('xtend');
+const mkdirp = require('mkdirp');
+const oneTime = require('one-time');
 
 module.exports = function outputFile(filePath, data, options, cb) {
-  var mkdirpOptions;
-  var writeFileOptions;
+  let mkdirpOptions;
+  let writeFileOptions;
 
-  if (arguments.length === 3) {
+  if (cb === undefined) {
     cb = options;
     mkdirpOptions = null;
     writeFileOptions = null;
@@ -24,16 +23,14 @@ module.exports = function outputFile(filePath, data, options, cb) {
 
     if (typeof options === 'string') {
       mkdirpOptions = null;
+    } else if (options.dirMode) {
+      mkdirpOptions = Object.assign({}, options, {mode: options.dirMode});
     } else {
-      if (options.dirMode) {
-        mkdirpOptions = xtend(options, {mode: options.dirMode});
-      } else {
-        mkdirpOptions = options;
-      }
+      mkdirpOptions = options;
     }
 
     if (options.fileMode) {
-      writeFileOptions = xtend(options, {mode: options.fileMode});
+      writeFileOptions = Object.assign({}, options, {mode: options.fileMode});
     } else {
       writeFileOptions = options;
     }
@@ -45,9 +42,9 @@ module.exports = function outputFile(filePath, data, options, cb) {
 
   cb = oneTime(cb);
 
-  mkdirp(dirname(filePath), mkdirpOptions, function(err, createdDirPath) {
-    if (err) {
-      cb(err);
+  mkdirp(dirname(filePath), mkdirpOptions, (mkdirpErr, createdDirPath) => {
+    if (mkdirpErr) {
+      cb(mkdirpErr);
       return;
     }
 
@@ -55,12 +52,10 @@ module.exports = function outputFile(filePath, data, options, cb) {
       return;
     }
 
-    writeFile(filePath, data, writeFileOptions, function(err) {
-      cb(err, createdDirPath);
-    });
+    writeFile(filePath, data, writeFileOptions, writeFileErr => cb(writeFileErr, createdDirPath));
   });
 
-  writeFile(filePath, data, writeFileOptions, function(err) {
+  writeFile(filePath, data, writeFileOptions, err => {
     if (err) {
       if (err.code === 'ENOENT') {
         return;

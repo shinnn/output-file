@@ -1,24 +1,24 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
+const fs = require('fs');
+const path = require('path');
 
-var outputFile = require('./');
-var readRemoveFile = require('read-remove-file');
-var test = require('tape');
+const outputFile = require('.');
+const readRemoveFile = require('read-remove-file');
+const test = require('tape');
 
-test('outputFile()', function(t) {
+test('outputFile()', t => {
   t.plan(18);
 
-  outputFile('tmp_file', 'foo', function(err, dir) {
+  outputFile('tmp_file', 'foo', (err, dir) => {
     t.deepEqual(
       [err, dir],
       [null, null],
       'should pass null to the arguments when it doesn\'t create any directories.'
     );
-    readRemoveFile('tmp_file', 'utf8', function(err, content) {
+    readRemoveFile('tmp_file', 'utf8', (err2, content) => {
       t.deepEqual(
-        [err, content],
+        [err2, content],
         [null, 'foo'],
         'should write correct contents to a file.'
       );
@@ -28,14 +28,14 @@ test('outputFile()', function(t) {
   outputFile('tmp/foo/bar', '00', {
     encoding: 'hex',
     mode: '0745'
-  }, function(err, dir) {
+  }, (err, dir) => {
     t.deepEqual(
       [err, dir],
       [null, path.resolve('tmp')],
       'should pass a path of the directory created first to the argument.'
     );
 
-    var expected;
+    let expected;
     /* istanbul ignore if */
     if (process.platform === 'win32') {
       expected = '40666';
@@ -48,9 +48,9 @@ test('outputFile()', function(t) {
       [expected, expected],
       'should accept mkdir\'s option.'
     );
-    readRemoveFile('tmp/foo/bar', 'hex', function(err, content) {
+    readRemoveFile('tmp/foo/bar', 'hex', (err2, content) => {
       t.deepEqual(
-        [err, content],
+        [err2, content],
         [null, '00'],
         'should accept fs.writeFile\'s options.'
       );
@@ -70,7 +70,7 @@ test('outputFile()', function(t) {
   });
 
   outputFile('index.js/foo', 'foo', 'utf8', function(err) {
-    var expected;
+    let expected;
     /* istanbul ignore if */
     if (process.platform === 'win32') {
       expected = 'EEXIST';
@@ -94,14 +94,14 @@ test('outputFile()', function(t) {
     dirMode: '0745',
     fileMode: '0755',
     encoding: null
-  }, function(err, dir) {
+  }, (err, dir) => {
     t.deepEqual(
       [err, dir],
       [null, path.resolve('t')],
       'should accept an absolute path as its first argument.'
     );
 
-    var expected;
+    let expected;
     /* istanbul ignore if */
     if (process.platform === 'win32') {
       expected = '40666';
@@ -128,9 +128,9 @@ test('outputFile()', function(t) {
       'should reflect `fileMode` option to the file mode.'
     );
 
-    readRemoveFile('t/m/p', 'utf8', function(err, content) {
+    readRemoveFile('t/m/p', 'utf8', (err2, content) => {
       t.deepEqual(
-        [err, content],
+        [err2, content],
         [null, 'ə'],
         'should write a file in UTF-8 when `encoding` option is null.'
       );
@@ -138,31 +138,31 @@ test('outputFile()', function(t) {
   });
 
   t.throws(
-    outputFile.bind(null, 'foo', 'bar', 'utf9', t.fail),
+    () => outputFile('foo', 'bar', 'utf9', t.fail),
     /Unknown encoding.*utf9/,
     'should throw an error when the option is not valid for fs.writeFile.'
   );
 
   t.throws(
-    outputFile.bind(null, 'f/o/o', 'bar', {fs: []}, t.fail),
+    () => outputFile('f/o/o', 'bar', {fs: []}, t.fail),
     /TypeError/,
     'should throw an error when the option is not valid for mkdirp.'
   );
 
   t.throws(
-    outputFile.bind(null, 'foo', 'bar', null, 'baz'),
+    () => outputFile('foo', 'bar', null, 'baz'),
     /TypeError.*not a function/,
     'should throw a type error when the last argument is not a function.'
   );
 
   t.throws(
-    outputFile.bind(null, true, '', t.fail),
+    () => outputFile(true, '', t.fail),
     /TypeError.*path/,
     'should throw a type error when the first argument is not a string.'
   );
 
   t.throws(
-    outputFile.bind(null),
+    () => outputFile(),
     /TypeError.*not a function/,
     'should throw a type error when it takes no arguments.'
   );

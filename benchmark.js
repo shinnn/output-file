@@ -1,48 +1,46 @@
-/*global suite:false, bench:false, before:false, after:false */
-'use strict';
+/* global suite:false, bench:false, before:false, after:false */
+'use strong';
 
-var path = require('path');
+const path = require('path');
 
-var fsExtra = require('fs-extra');
-var mkdirp = require('mkdirp');
-var rimraf = require('rimraf');
+const fsOutputFile = require('fs-extra').outputFile;
+const mkdirp = require('mkdirp');
+const outputFile = require('.');
+const rimraf = require('rimraf');
 
-var tmpPath = 'benchmark_tmp';
-var content = 'Hello, World!';
+const tmpPath = 'benchmark_tmp';
+const content = 'Hello, World!';
 
-var one = require('./');
-var another = fsExtra.outputFile;
+suite('Write a file to an existing directory', () => {
+  before(done => mkdirp('benchmark_tmp', done));
 
-suite('Write a file to an existing directory', function() {
-  before(mkdirp.bind(null, 'benchmark_tmp'));
+  let count0 = 0;
+  let count1 = 0;
 
-  var count = 0;
-  var countAnother = 0;
-
-  bench('outputFile()', function(next) {
-    one(path.join(tmpPath, '' + count++), content, next);
+  bench('outputFile()', next => {
+    outputFile(path.join(tmpPath, String(count0++)), content, next);
   });
 
-  bench('fs.outputFile()', function(next) {
-    another(path.join(tmpPath, '' + countAnother++), content, next);
+  bench('fs.outputFile()', next => {
+    fsOutputFile(path.join(tmpPath, String(count1++)), content, next);
   });
 
-  after(rimraf.bind(null, tmpPath));
+  after(done => rimraf(tmpPath, done));
 });
 
-suite('Create directories and write a file', function() {
-  before(mkdirp.bind(null, 'benchmark_tmp'));
+suite('Create directories and write a file', () => {
+  before(done => mkdirp('benchmark_tmp', done));
 
-  var count = 0;
-  var countAnother = 0;
+  let count0 = 0;
+  let count1 = 0;
 
-  bench('outputFile()', function(next) {
-    one(path.join(tmpPath, 'nested/' + count++, 'foo/bar'), content, next);
+  bench('outputFile()', next => {
+    outputFile(path.join(tmpPath, `nested/${count0++}foo/bar`), content, next);
   });
 
-  bench('fs.outputFile()', function(next) {
-    another(path.join(tmpPath, 'nested/' + countAnother++, 'foo/bar'), content, next);
+  bench('fs.outputFile()', next => {
+    fsOutputFile(path.join(tmpPath, `nested/${count1++}foo/bar`), content, next);
   });
 
-  after(rimraf.bind(null, tmpPath));
+  after(done => rimraf(tmpPath, done));
 });

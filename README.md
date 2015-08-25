@@ -10,12 +10,12 @@
 Write a file and create its ancestor directories if needed
 
 ```javascript
-var fs = require('fs');
-var path = require('path');
-var outputFile = require('output-file');
+const fs = require('fs');
+const path = require('path');
+const outputFile = require('output-file');
 
 // When the direcory `foo` exists:
-outputFile('foo/bar/baz.txt', 'Hi!', function(err, createdDir) {
+outputFile('foo/bar/baz.txt', 'Hi!', (err, createdDir) => {
   if (err) {
     throw err;
   }
@@ -23,22 +23,21 @@ outputFile('foo/bar/baz.txt', 'Hi!', function(err, createdDir) {
   createdDir === path.resolve('foo/bar'); //=> true
   fs.readFileSync('foo/bar/baz.txt').toString(); //=> 'Hi!'
 });
-
 ```
 
-## Difference from fs.outputFile
+## Difference from [fs.outputFile](https://www.npmjs.com/package/fs-extra#outputfile-file-data-callback)
 
 This module is very similar to [fs-extra](https://github.com/jprichardson/node-fs-extra)'s [`fs.outputFile`](https://github.com/jprichardson/node-fs-extra#outputfilefile-data-callback) but they are different in the following points:
 
 1. *output-file* passes the path of the directory created first to the second argument of its callback. [See the API document for more details.](#callbackerror-createddirectorypath)
 2. *output-file* throws an error immediately if it takes a wrong argument. 
    ```javascript
-   var outputFile = require('output-file');
-   outputFile('path', 'content', 'utf7', function() {/* ... */});
+   const outputFile = require('output-file');
+   outputFile('path', 'content', 'utf7', () => {/* ... */});
    // Error: Unknown encoding: utf7
 
-   var fs = require('fs-extra');
-   fs.outputFile('path', 'content', 'utf7', function() {/* ... */});
+   const fs = require('fs-extra');
+   fs.outputFile('path', 'content', 'utf7', () => {/* ... */});
    // Doesn't throw any errors immediately
    ```
 
@@ -46,31 +45,31 @@ This module is very similar to [fs-extra](https://github.com/jprichardson/node-f
 
 [Use npm.](https://docs.npmjs.com/cli/install)
 
-```sh
+```
 npm install output-file
 ```
 
 ## API
 
 ```javascript
-var outputFile = require('output-file');
+const outputFile = require('output-file');
 ```
 
 ### outputFile(*path*, *data* [, *options*], *callback*)
 
 *path*: `String`  
-*data*: `String` or [`Buffer`](https://iojs.org/api/buffer.html#buffer_class_buffer)  
+*data*: `String` or [`Buffer`](https://nodejs.org/api/buffer.html#buffer_class_buffer)  
 *options*: `Object` or `String` (options for [fs.writeFile] and [mkdirp])  
 *callback*: `Function`
 
 It writes the data to a file asynchronously. If ancestor directories of the file don't exist, it creates the directories before writing the file.
 
 ```javascript
-var fs = require('fs');
-var outputFile = require('output-file');
+const fs = require('fs');
+const outputFile = require('output-file');
 
 // When the directory `foo/bar` exists
-outputFile('foo/bar/baz/qux.txt', 'Hello', 'utf-8', function(err, dir) {
+outputFile('foo/bar/baz/qux.txt', 'Hello', (err, dir) => {
   if (err) {
     throw err;
   }
@@ -83,8 +82,8 @@ outputFile('foo/bar/baz/qux.txt', 'Hello', 'utf-8', function(err, dir) {
 All options for [fs.writeFile] and [mkdirp] are available.
 
 ```javascript
-outputFile('foo', '012345', {encoding: 'foo', mode: 33260}, function(err, dir) {
-  fs.readFileSync('foo').toString(); //=> 'MDEyMzQ1'
+outputFile('foo', '234567', {encoding: 'hex', mode: 33260}, (err, dir) => {
+  fs.readFileSync('foo').toString(); //=> '#Eg'
   fs.statSync('foo').mode; //=> 33260
 });
 ```
@@ -104,7 +103,7 @@ Set modes of a file, overriding `mode` option.
 Set modes of directories, overriding `mode` option.
 
 ```javascript
-outputFile('dir/file', 'content', {dirMode: '0745', fileMode: '0644'}, function(err) {
+outputFile('dir/file', 'content', {dirMode: '0745', fileMode: '0644'}, err => {
   if (err) {
     throw err;
   }
@@ -124,7 +123,7 @@ It passes the directory path to the second argument of its callback, just like [
 > `cb(err, made)` fires with the error or the first directory `made` that had to be created, if any.
 
 ```javascript
-outputFile('foo/bar/baz.txt', 'data', function(err, dir) {
+outputFile('foo/bar/baz.txt', 'data', (err, dir) => {
   if (err) {
     throw err;
   }
@@ -132,7 +131,7 @@ outputFile('foo/bar/baz.txt', 'data', function(err, dir) {
   dir; // the same value as `path.resolve('foo')`
 });
 
-outputFile('foo.txt', 'data', function(err, dir) {
+outputFile('foo.txt', 'data', (err, dir) => {
   if (err) {
     throw err;
   }
@@ -151,5 +150,5 @@ Copyright (c) 2014 - 2015 [Shinnosuke Watanabe](https://github.com/shinnn)
 
 Licensed under [the MIT License](./LICENSE).
 
-[fs.writeFile]: https://iojs.org/api/fs.html#fs_fs_writefile_filename_data_options_callback
+[fs.writeFile]: https://nodejs.org/api/fs.html#fs_fs_writefile_filename_data_options_callback
 [mkdirp]: https://github.com/substack/node-mkdirp

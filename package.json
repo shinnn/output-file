@@ -3,23 +3,14 @@
   "version": "1.1.1",
   "description": "Write a file and create its ancestor directories if needed",
   "repository": "shinnn/output-file",
-  "author": {
-    "name": "Shinnosuke Watanabe",
-    "url": "https://github.com/shinnn"
-  },
+  "author": "Shinnosuke Watanabe (https://github.com/shinnn)",
   "scripts": {
-    "bench": "matcha benchmark.js",
-    "pretest": "jscs *.js && eslint *.js",
-    "test": "node test.js | tap-spec",
-    "coverage": "istanbul cover test.js",
-    "coveralls": "istanbul cover test.js && istanbul-coveralls"
+    "bench": "node --strong_mode node_modules/.bin/_matcha benchmark.js",
+    "pretest": "eslint --config @shinnn/node benchmark.js index.js test.js",
+    "test": "node --strong_mode --throw-deprecation --track-heap-objects test.js | tap-spec",
+    "coverage": "node --strong_mode node_modules/.bin/istanbul cover test.js"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/shinnn/output-file/blob/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "files": [
     "index.js"
   ],
@@ -28,31 +19,24 @@
     "write",
     "async",
     "asynchronous",
+    "asynchronously",
     "output",
+    "create",
     "file",
     "mkdir",
     "mkdirp"
   ],
   "dependencies": {
-    "mkdirp": "^0.5.0",
-    "one-time": "^0.0.3",
-    "xtend": "^4.0.0"
+    "mkdirp": "^0.5.1",
+    "one-time": "^0.0.4"
   },
   "devDependencies": {
-    "eslint": "^0.13.0",
-    "fs-extra": "^0.15.0",
-    "istanbul": "^0.3.5",
-    "istanbul-coveralls": "^1.0.1",
-    "jscs": "^1.10.0",
+    "eslint": "^1.6.0",
+    "fs-extra": "^0.24.0",
+    "istanbul": "^0.3.22",
     "matcha": "^0.6.0",
-    "read-remove-file": "^1.0.1",
-    "tap-spec": "^2.2.0",
-    "tape": "^3.4.0"
-  },
-  "jscsConfig": {
-    "preset": "google",
-    "maximumLineLength": 98,
-    "requireBlocksOnNewline": true,
-    "validateLineBreaks": "LF"
+    "read-remove-file": "^3.0.0",
+    "tap-spec": "^4.1.0",
+    "tape": "^4.2.1"
   }
 }
