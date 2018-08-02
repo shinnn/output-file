@@ -1,16 +1,19 @@
 'use strict';
 
 const {dirname} = require('path');
+const {promisify} = require('util');
 const {writeFile} = require('fs');
 
 const mkdirp = require('mkdirp');
-const oneTime = require('one-time');
 
-module.exports = function outputFile(...args) {
+const promisifiedMkdirp = promisify(mkdirp);
+const promisifiedWriteFile = promisify(writeFile);
+
+module.exports = async function outputFile(...args) {
 	const argLen = args.length;
 
-	if (argLen !== 3 && argLen !== 4) {
-		throw new RangeError(`Expected 3 or 4 arguments (<string>, <string|Buffer>[, <string|Object>], <Function>), but got ${
+	if (argLen !== 2 && argLen !== 3) {
+		throw new RangeError(`Expected 2 or 3 arguments (<string>, <string|Buffer|Uint8Array>[, <string|Object>], <Function>), but got ${
 			argLen === 0 ? 'no' : argLen
 		} arguments.`);
 	}
@@ -18,17 +21,9 @@ module.exports = function outputFile(...args) {
 	let mkdirpOptions;
 	let writeFileOptions;
 
-	const [filePath, data] = args;
-	let options = args[2];
-	let cb = args[3];
+	const [filePath, data, options = {}] = args;
 
 	if (argLen === 3) {
-		cb = options;
-		mkdirpOptions = null;
-		writeFileOptions = null;
-	} else {
-		options = options || {};
-
 		if (typeof options === 'string') {
 			mkdirpOptions = null;
 		} else if (options.dirMode) {
@@ -44,35 +39,28 @@ module.exports = function outputFile(...args) {
 		}
 	}
 
-	if (typeof cb !== 'function') {
-		throw new TypeError(`${cb} is not a function. Last argument must be a callback function.`);
-	}
+	return (await Promise.all([
+		(async () => {
+			const createdDirPath = await promisifiedMkdirp(dirname(filePath), mkdirpOptions);
 
-	cb = oneTime(cb);
-
-	mkdirp(dirname(filePath), mkdirpOptions, (mkdirpErr, createdDirPath) => {
-		if (mkdirpErr) {
-			cb(mkdirpErr);
-			return;
-		}
-
-		if (createdDirPath === null) {
-			return;
-		}
-
-		writeFile(filePath, data, writeFileOptions, writeFileErr => cb(writeFileErr, createdDirPath));
-	});
-
-	writeFile(filePath, data, writeFileOptions, err => {
-		if (err) {
-			if (err.code === 'ENOENT') {
-				return;
+			if (createdDirPath === null) {
+				return null;
 			}
 
-			cb(err);
-			return;
-		}
+			await promisifiedWriteFile(filePath, data, writeFileOptions);
 
-		cb(err, null);
-	});
+			return createdDirPath;
+		})(),
+		(async () => {
+			try {
+				await promisifiedWriteFile(filePath, data, writeFileOptions);
+			} catch (err) {
+				if (err.code === 'ENOENT') {
+					return;
+				}
+
+				throw err;
+			}
+		})()
+	]))[0];
 };

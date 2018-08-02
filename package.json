@@ -5,7 +5,7 @@
 	"repository": "shinnn/output-file",
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
 	"scripts": {
-		"bench": "matcha benchmark.js",
+		"bench": "node benchmark.js",
 		"pretest": "eslint .",
 		"test": "nyc --reporter=html --reporter=text node test.js"
 	},
@@ -23,7 +23,8 @@
 		"create",
 		"file",
 		"mkdir",
-		"mkdirp"
+		"mkdirp",
+		"promise"
 	],
 	"dependencies": {
 		"mkdirp": "^0.5.1",

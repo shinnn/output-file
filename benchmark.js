@@ -1,46 +1,55 @@
-/* global suite:false, bench:false, before:false, after:false */
-'use strong';
+/* eslint-disable no-await-in-loop, no-loop-func */
+'use strict';
 
-const path = require('path');
+const {join} = require('path');
+const {performance} = require('perf_hooks');
+const {mkdir} = require('fs').promises;
 
-const fsOutputFile = require('fs-extra').outputFile;
-const mkdirp = require('mkdirp');
+const fsExtraOutputFile = require('fs-extra').outputFile;
 const outputFile = require('.');
-const rimraf = require('rimraf');
+const rmfr = require('rmfr');
 
-const tmpPath = 'benchmark_tmp';
-const content = 'Hello, World!';
+const TIME = 5000;
 
-suite('Write a file to an existing directory', () => {
-	before(done => mkdirp('benchmark_tmp', done));
+async function measure(fn, title) {
+	const MAX_LENGTH = 39;
+	title = title.padEnd(MAX_LENGTH);
 
-	let count0 = 0;
-	let count1 = 0;
+	const start = performance.now();
+	let times = TIME;
 
-	bench('outputFile()', next => {
-		outputFile(path.join(tmpPath, String(count0++)), content, next);
-	});
+	while (times--) {
+		await fn(times);
+	}
 
-	bench('fs.outputFile()', next => {
-		fsOutputFile(path.join(tmpPath, String(count1++)), content, next);
-	});
+	console.log(`${title}${((performance.now() - start) / (TIME / 1000)).toFixed(15).padStart(19)} ms/op avg.`);
+}
 
-	after(done => rimraf(tmpPath, done));
-});
+(async () => {
+	const contents = Buffer.from('Hi');
+	const tmp = join(__dirname, 'tmp_benchmark');
+	let caseIndex = 0;
 
-suite('Create directories and write a file', () => {
-	before(done => mkdirp('benchmark_tmp', done));
+	for (const [fnName, fn] of Object.entries({
+		'output-file (this project)': outputFile,
+		'fs-extra': fsExtraOutputFile
+	})) {
+		await mkdir(join(__dirname, 'tmp_benchmark'));
+		console.log(`${fnName}:`);
 
-	let count0 = 0;
-	let count1 = 0;
+		await measure(
+			async index => fn(join(tmp, `out-${caseIndex}-${index}.txt`), contents),
+			'Write a file to an existing directory'
+		);
 
-	bench('outputFile()', next => {
-		outputFile(path.join(tmpPath, `nested/${count0++}foo/bar`), content, next);
-	});
+		await measure(
+			async index => fn(join(tmp, `deep-${caseIndex}-${index}/0/1/2/3/4/5/6/7/8/9/out.txt`), contents),
+			'Create directories and write a file'
+		);
 
-	bench('fs.outputFile()', next => {
-		fsOutputFile(path.join(tmpPath, `nested/${count1++}foo/bar`), content, next);
-	});
+		await rmfr(join(__dirname, 'tmp_benchmark'));
 
-	after(done => rimraf(tmpPath, done));
-});
+		caseIndex++;
+		console.log();
+	}
+})();
