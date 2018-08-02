@@ -12,35 +12,35 @@ const tmpPath = 'benchmark_tmp';
 const content = 'Hello, World!';
 
 suite('Write a file to an existing directory', () => {
-  before(done => mkdirp('benchmark_tmp', done));
+	before(done => mkdirp('benchmark_tmp', done));
 
-  let count0 = 0;
-  let count1 = 0;
+	let count0 = 0;
+	let count1 = 0;
 
-  bench('outputFile()', next => {
-    outputFile(path.join(tmpPath, String(count0++)), content, next);
-  });
+	bench('outputFile()', next => {
+		outputFile(path.join(tmpPath, String(count0++)), content, next);
+	});
 
-  bench('fs.outputFile()', next => {
-    fsOutputFile(path.join(tmpPath, String(count1++)), content, next);
-  });
+	bench('fs.outputFile()', next => {
+		fsOutputFile(path.join(tmpPath, String(count1++)), content, next);
+	});
 
-  after(done => rimraf(tmpPath, done));
+	after(done => rimraf(tmpPath, done));
 });
 
 suite('Create directories and write a file', () => {
-  before(done => mkdirp('benchmark_tmp', done));
+	before(done => mkdirp('benchmark_tmp', done));
 
-  let count0 = 0;
-  let count1 = 0;
+	let count0 = 0;
+	let count1 = 0;
 
-  bench('outputFile()', next => {
-    outputFile(path.join(tmpPath, `nested/${count0++}foo/bar`), content, next);
-  });
+	bench('outputFile()', next => {
+		outputFile(path.join(tmpPath, `nested/${count0++}foo/bar`), content, next);
+	});
 
-  bench('fs.outputFile()', next => {
-    fsOutputFile(path.join(tmpPath, `nested/${count1++}foo/bar`), content, next);
-  });
+	bench('fs.outputFile()', next => {
+		fsOutputFile(path.join(tmpPath, `nested/${count1++}foo/bar`), content, next);
+	});
 
-  after(done => rimraf(tmpPath, done));
+	after(done => rimraf(tmpPath, done));
 });

@@ -1,169 +1,151 @@
 'use strict';
 
-const fs = require('fs');
+const {lstat, readFile} = require('fs').promises;
 const path = require('path');
 
 const outputFile = require('.');
-const readRemoveFile = require('read-remove-file');
+const rmfr = require('rmfr');
 const test = require('tape');
 
-test('outputFile()', t => {
-  t.plan(18);
+test('outputFile()', async t => {
+	t.plan(19);
 
-  outputFile('tmp_file', 'foo', (err, dir) => {
-    t.deepEqual(
-      [err, dir],
-      [null, null],
-      'should pass null to the arguments when it doesn\'t create any directories.'
-    );
-    readRemoveFile('tmp_file', 'utf8', (err2, content) => {
-      t.deepEqual(
-        [err2, content],
-        [null, 'foo'],
-        'should write correct contents to a file.'
-      );
-    });
-  });
+	await rmfr('tmp*', {glob: true});
 
-  outputFile('tmp/foo/bar', '00', {
-    encoding: 'hex',
-    mode: '0745'
-  }, (err, dir) => {
-    t.deepEqual(
-      [err, dir],
-      [null, path.resolve('tmp')],
-      'should pass a path of the directory created first to the argument.'
-    );
+	outputFile('tmp_file', 'foo', async (err, dir) => {
+		t.deepEqual(
+			[err, dir],
+			[null, null],
+			'should pass null to the arguments when it doesn\'t create any directories.'
+		);
 
-    let expected;
-    /* istanbul ignore if */
-    if (process.platform === 'win32') {
-      expected = '40666';
-    } else {
-      expected = '40745';
-    }
+		t.equal(
+			await readFile('tmp_file', 'utf8'),
+			'foo',
+			'should write correct contents to a file.'
+		);
+	});
 
-    t.deepEqual(
-      [fs.statSync('tmp').mode.toString(8), fs.statSync('tmp/foo').mode.toString(8)],
-      [expected, expected],
-      'should accept mkdir\'s option.'
-    );
-    readRemoveFile('tmp/foo/bar', 'hex', (err2, content) => {
-      t.deepEqual(
-        [err2, content],
-        [null, '00'],
-        'should accept fs.writeFile\'s options.'
-      );
-    });
-  });
+	outputFile('tmp_dir/foo/bar', '00', {
+		encoding: 'hex',
+		mode: '0745'
+	}, async (err, dir) => {
+		t.deepEqual(
+			[err, dir],
+			[null, path.resolve('tmp_dir')],
+			'should pass a path of the directory created first to the argument.'
+		);
 
-  outputFile('node_modules/mkdirp', 'foo', function(err) {
-    t.equal(
-      err.code, 'EISDIR',
-      'should pass an error to the callback when fs.writeFile fails.'
-    );
-    t.equal(
-      arguments.length,
-      1,
-      'should not pass any values to the second argument when fs.writeFile fails.'
-    );
-  });
+		const expected = `40${process.platform === 'win32' ? '666' : '745'}`;
 
-  outputFile('index.js/foo', 'foo', 'utf8', function(err) {
-    let expected;
-    /* istanbul ignore if */
-    if (process.platform === 'win32') {
-      expected = 'EEXIST';
-    } else {
-      expected = 'ENOTDIR';
-    }
+		t.deepEqual(
+			[(await lstat('tmp_dir')).mode.toString(8), (await lstat('tmp_dir/foo')).mode.toString(8)],
+			[expected, expected],
+			'should accept mkdir\'s option.'
+		);
 
-    t.equal(
-      err.code,
-      expected,
-      'should pass an error to the callback when mkdirp fails.'
-    );
-    t.equal(
-      arguments.length,
-      1,
-      'should not pass any values to the second argument when mkdirp fails.'
-    );
-  });
+		t.equal(
+			await readFile('tmp_dir/foo/bar', 'hex'),
+			'00',
+			'should accept fs.writeFile\'s options.'
+		);
+	});
 
-  outputFile(path.resolve('t/m/p'), 'ə', {
-    dirMode: '0745',
-    fileMode: '0755',
-    encoding: null
-  }, (err, dir) => {
-    t.deepEqual(
-      [err, dir],
-      [null, path.resolve('t')],
-      'should accept an absolute path as its first argument.'
-    );
+	outputFile('node_modules/mkdirp', 'foo', (...args) => {
+		t.equal(
+			args[0].code,
+			'EISDIR',
+			'should pass an error to the callback when fs.writeFile fails.'
+		);
 
-    let expected;
-    /* istanbul ignore if */
-    if (process.platform === 'win32') {
-      expected = '40666';
-    } else {
-      expected = '40745';
-    }
+		t.equal(
+			args.length,
+			1,
+			'should not pass any values to the second argument when fs.writeFile fails.'
+		);
+	});
 
-    t.deepEqual(
-      [fs.statSync('t').mode.toString(8), fs.statSync('t/m').mode.toString(8)],
-      [expected, expected],
-      'should reflect `dirMode` option to the directory mode.'
-    );
+	outputFile('index.js/foo', 'foo', 'utf8', (...args) => {
+		const expected = process.platform === 'win32' ? 'EEXIST' : 'ENOTDIR';
 
-    /* istanbul ignore if */
-    if (process.platform === 'win32') {
-      expected = '100666';
-    } else {
-      expected = '100755';
-    }
+		t.equal(
+			args[0].code,
+			expected,
+			'should pass an error to the callback when mkdirp fails.'
+		);
 
-    t.equal(
-      fs.statSync('t/m/p').mode.toString(8),
-      expected,
-      'should reflect `fileMode` option to the file mode.'
-    );
+		t.equal(
+			args.length,
+			1,
+			'should not pass any values to the second argument when mkdirp fails.'
+		);
+	});
 
-    readRemoveFile('t/m/p', 'utf8', (err2, content) => {
-      t.deepEqual(
-        [err2, content],
-        [null, 'ə'],
-        'should write a file in UTF-8 when `encoding` option is null.'
-      );
-    });
-  });
+	outputFile(path.resolve('tmp_dir_another/1/2'), 'ə', {
+		dirMode: '0745',
+		fileMode: '0755',
+		encoding: null
+	}, async (err, dir) => {
+		t.deepEqual(
+			[err, dir],
+			[null, path.resolve('tmp_dir_another')],
+			'should accept an absolute path as its first argument.'
+		);
 
-  t.throws(
-    () => outputFile('foo', 'bar', 'utf9', t.fail),
-    /Unknown encoding.*utf9/,
-    'should throw an error when the option is not valid for fs.writeFile.'
-  );
+		const expected = `40${process.platform === 'win32' ? '666' : '745'}`;
 
-  t.throws(
-    () => outputFile('f/o/o', 'bar', {fs: []}, t.fail),
-    /TypeError/,
-    'should throw an error when the option is not valid for mkdirp.'
-  );
+		t.equal(
+			(await lstat('tmp_dir_another')).mode.toString(8),
+			expected,
+			'should reflect `dirMode` option to the mode of a directory.'
+		);
 
-  t.throws(
-    () => outputFile('foo', 'bar', null, 'baz'),
-    /TypeError.*not a function/,
-    'should throw a type error when the last argument is not a function.'
-  );
+		t.equal(
+			(await lstat('tmp_dir_another/1')).mode.toString(8),
+			expected,
+			'should reflect `dirMode` option to the mode of a deep directory.'
+		);
 
-  t.throws(
-    () => outputFile(true, '', t.fail),
-    /TypeError.*path/,
-    'should throw a type error when the first argument is not a string.'
-  );
+		t.equal(
+			(await lstat('tmp_dir_another/1/2')).mode.toString(8),
+			`100${process.platform === 'win32' ? '666' : '755'}`,
+			'should reflect `fileMode` option to the file mode.'
+		);
 
-  t.throws(
-    () => outputFile(),
-    /TypeError.*not a function/,
-    'should throw a type error when it takes no arguments.'
-  );
+		t.deepEqual(
+			await readFile('tmp_dir_another/1/2', 'utf8'),
+			'ə',
+			'should write a file in UTF-8 when `encoding` option is null.'
+		);
+	});
+
+	t.throws(
+		() => outputFile('foo', 'bar', 'utf9', t.fail),
+		/ERR_INVALID_OPT_VALUE_ENCODING/,
+		'should throw an error when the option is not valid for fs.writeFile.'
+	);
+
+	t.throws(
+		() => outputFile('f/o/o', 'bar', {fs: []}, t.fail),
+		/TypeError/,
+		'should throw an error when the option is not valid for mkdirp.'
+	);
+
+	t.throws(
+		() => outputFile('foo', 'bar', null, 'baz'),
+		/TypeError.*not a function/,
+		'should throw a type error when the last argument is not a function.'
+	);
+
+	t.throws(
+		() => outputFile(true, '', t.fail),
+		/TypeError.*path/,
+		'should throw a type error when the first argument is not a string.'
+	);
+
+	t.throws(
+		() => outputFile(),
+		/TypeError.*not a function/,
+		'should throw a type error when it takes no arguments.'
+	);
 });

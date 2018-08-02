@@ -1,27 +1,21 @@
 # output-file
 
-[![NPM version](https://img.shields.io/npm/v/output-file.svg?style=flat)](https://www.npmjs.com/package/output-file)
+[![npm version](https://img.shields.io/npm/v/output-file.svg?style=flat)](https://www.npmjs.com/package/output-file)
 [![Build Status](https://travis-ci.org/shinnn/output-file.svg)](https://travis-ci.org/shinnn/output-file)
 [![Build status](https://ci.appveyor.com/api/projects/status/q435g7uifts9ud1q?svg=true)](https://ci.appveyor.com/project/ShinnosukeWatanabe/output-file)
-[![Coverage Status](https://img.shields.io/coveralls/shinnn/output-file.svg?style=flat)](https://coveralls.io/r/shinnn/output-file)
-[![Dependency Status](https://img.shields.io/david/shinnn/output-file.svg?style=flat&label=deps)](https://david-dm.org/shinnn/output-file)
-[![devDependency Status](https://img.shields.io/david/dev/shinnn/output-file.svg?style=flat&label=devDeps)](https://david-dm.org/shinnn/output-file#info=devDependencies)
+[![Coverage Status](https://img.shields.io/coveralls/shinnn/output-file.svg?style=flat)](https://coveralls.io/github/shinnn/output-file)
 
 Write a file and create its ancestor directories if needed
 
 ```javascript
-const fs = require('fs');
-const path = require('path');
+const {readFile} = require('fs').promises;
+const {resolve} = require('path');
 const outputFile = require('output-file');
 
 // When the direcory `foo` exists:
-outputFile('foo/bar/baz.txt', 'Hi!', (err, createdDir) => {
-  if (err) {
-    throw err;
-  }
-
-  createdDir === path.resolve('foo/bar'); //=> true
-  fs.readFileSync('foo/bar/baz.txt').toString(); //=> 'Hi!'
+outputFile('foo/bar/baz.txt', 'Hi!', async (err, createdDir) => {
+  createdDir === resolve('foo/bar'); //=> true
+  await readFile('foo/bar/baz.txt', 'utf8'); //=> 'Hi!'
 });
 ```
 
@@ -30,7 +24,7 @@ outputFile('foo/bar/baz.txt', 'Hi!', (err, createdDir) => {
 This module is very similar to [fs-extra](https://github.com/jprichardson/node-fs-extra)'s [`fs.outputFile`](https://github.com/jprichardson/node-fs-extra#outputfilefile-data-callback) but they are different in the following points:
 
 1. *output-file* passes the path of the directory created first to the second argument of its callback. [See the API document for more details.](#callbackerror-createddirectorypath)
-2. *output-file* throws an error immediately if it takes a wrong argument. 
+2. *output-file* throws an error immediately if it takes a wrong argument.
    ```javascript
    const outputFile = require('output-file');
    outputFile('path', 'content', 'utf7', () => {/* ... */});
@@ -43,7 +37,7 @@ This module is very similar to [fs-extra](https://github.com/jprichardson/node-f
 
 ## Installation
 
-[Use npm.](https://docs.npmjs.com/cli/install)
+[Use](https://docs.npmjs.com/cli/install) [npm](https://docs.npmjs.com/getting-started/what-is-npm).
 
 ```
 npm install output-file
@@ -57,9 +51,9 @@ const outputFile = require('output-file');
 
 ### outputFile(*path*, *data* [, *options*], *callback*)
 
-*path*: `String`  
-*data*: `String` or [`Buffer`](https://nodejs.org/api/buffer.html#buffer_class_buffer)  
-*options*: `Object` or `String` (options for [fs.writeFile] and [mkdirp])  
+*path*: `string`  
+*data*: `string` or [`Buffer`](https://nodejs.org/api/buffer.html#buffer_class_buffer)  
+*options*: `Object` or `string` (options for [fs.writeFile] and [mkdirp])  
 *callback*: `Function`
 
 It writes the data to a file asynchronously. If ancestor directories of the file don't exist, it creates the directories before writing the file.
@@ -146,7 +140,7 @@ outputFile('foo.txt', 'data', (err, dir) => {
 
 ## License
 
-Copyright (c) 2014 - 2015 [Shinnosuke Watanabe](https://github.com/shinnn)
+Copyright (c) 2014 - 2018 [Shinnosuke Watanabe](https://github.com/shinnn)
 
 Licensed under [the MIT License](./LICENSE).
 
