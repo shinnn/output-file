@@ -1,16 +1,28 @@
 'use strict';
 
-const dirname = require('path').dirname;
-const writeFile = require('fs').writeFile;
+const {dirname} = require('path');
+const {writeFile} = require('fs');
 
 const mkdirp = require('mkdirp');
 const oneTime = require('one-time');
 
-module.exports = function outputFile(filePath, data, options, cb) {
+module.exports = function outputFile(...args) {
+	const argLen = args.length;
+
+	if (argLen !== 3 && argLen !== 4) {
+		throw new RangeError(`Expected 3 or 4 arguments (<string>, <string|Buffer>[, <string|Object>], <Function>), but got ${
+			argLen === 0 ? 'no' : argLen
+		} arguments.`);
+	}
+
 	let mkdirpOptions;
 	let writeFileOptions;
 
-	if (cb === undefined) {
+	const [filePath, data] = args;
+	let options = args[2];
+	let cb = args[3];
+
+	if (argLen === 3) {
 		cb = options;
 		mkdirpOptions = null;
 		writeFileOptions = null;

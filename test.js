@@ -8,7 +8,7 @@ const rmfr = require('rmfr');
 const test = require('tape');
 
 test('outputFile()', async t => {
-	t.plan(19);
+	t.plan(20);
 
 	await rmfr('tmp*', {glob: true});
 
@@ -145,7 +145,13 @@ test('outputFile()', async t => {
 
 	t.throws(
 		() => outputFile(),
-		/TypeError.*not a function/,
+		/but got no arguments\./,
 		'should throw a type error when it takes no arguments.'
+	);
+
+	t.throws(
+		() => outputFile('', '', '', '', ''),
+		/but got 5 arguments\./,
+		'should throw a type error when it takes too many arguments.'
 	);
 });
