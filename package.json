@@ -1,6 +1,6 @@
 {
 	"name": "output-file",
-	"version": "2.0.0-0",
+	"version": "2.0.0-1",
 	"description": "Write a file and create its ancestor directories if needed",
 	"repository": "shinnn/output-file",
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
