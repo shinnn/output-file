@@ -5,6 +5,7 @@ const {promisify} = require('util');
 const {writeFile} = require('fs');
 
 const mkdirp = require('mkdirp');
+const noop = require('nop');
 
 const promisifiedMkdirp = promisify(mkdirp);
 const promisifiedWriteFile = promisify(writeFile);
@@ -38,6 +39,9 @@ module.exports = async function outputFile(...args) {
 			writeFileOptions = options;
 		}
 	}
+
+	// validate 2nd and 3rd arguments
+	writeFile(__dirname, data, writeFileOptions, noop);
 
 	return (await Promise.all([
 		(async () => {

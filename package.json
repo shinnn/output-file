@@ -4,12 +4,12 @@
 	"description": "Write a file and create its ancestor directories if needed",
 	"repository": "shinnn/output-file",
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
+	"license": "MIT",
 	"scripts": {
 		"bench": "node benchmark.js",
 		"pretest": "eslint .",
 		"test": "nyc --reporter=html --reporter=text node test.js"
 	},
-	"license": "MIT",
 	"files": [
 		"index.js"
 	],
@@ -28,7 +28,7 @@
 	],
 	"dependencies": {
 		"mkdirp": "^0.5.1",
-		"one-time": "^0.0.4"
+		"nop": "^1.0.0"
 	},
 	"devDependencies": {
 		"@shinnn/eslint-config-node": "^6.0.0",
