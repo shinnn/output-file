@@ -3,6 +3,7 @@
 const {lstat, readFile} = require('fs').promises;
 const {join} = require('path');
 
+const fileUrl = require('file-url');
 const outputFile = require('.');
 const rmfr = require('rmfr');
 const test = require('tape');
@@ -26,7 +27,7 @@ test('outputFile()', async t => {
 		})(),
 		(async () => {
 			t.equal(
-				await outputFile('tmp_dir/foo/bar', '00', {
+				await outputFile(Buffer.from('tmp_dir/foo/bar'), '00', {
 					encoding: 'hex',
 					mode: '0745'
 				}),
@@ -50,7 +51,7 @@ test('outputFile()', async t => {
 		})(),
 		(async () => {
 			try {
-				await outputFile(__dirname, 'foo');
+				await outputFile(new Uint8Array([...__dirname].map(char => char.charCodeAt(0))), 'foo');
 			} catch ({code}) {
 				t.equal(
 					code,
@@ -72,7 +73,7 @@ test('outputFile()', async t => {
 		})(),
 		(async () => {
 			t.equal(
-				await outputFile(join(__dirname, 'tmp_dir_another/1/2'), 'ə', {
+				await outputFile(new URL(fileUrl('tmp_dir_another/1/2')), 'ə', {
 					dirMode: '0745',
 					fileMode: '0755',
 					encoding: null
@@ -120,62 +121,63 @@ test('outputFile()', async t => {
 });
 
 test('Argument validation', async t => {
-	const fail = t.fail.bind(t, 'Unexpectedly succeeded.');
-
-	try {
-		await outputFile(true, '');
-		fail();
-	} catch ({code}) {
-		t.equal(
-			code,
-			'ERR_INVALID_ARG_TYPE',
-			'should fail when the first argument is neither a string, Buffer nor URL.'
-		);
+	async function getError(...args) {
+		try {
+			return await outputFile(...args);
+		} catch (err) {
+			return err;
+		}
 	}
 
-	try {
-		await outputFile('foo', 'bar', 'utf9');
-		fail();
-	} catch ({code}) {
-		t.equal(
-			code,
-			'ERR_INVALID_OPT_VALUE_ENCODING',
-			'should fail when the option is not valid for fs.writeFile.'
-		);
-	}
+	t.equal(
+		(await getError(true, '')).code,
+		'ERR_INVALID_ARG_TYPE',
+		'should fail when the first argument is not a valid path type.'
+	);
 
-	try {
-		await outputFile('f/o/o', 'bar', {fs: []});
-		fail();
-	} catch (err) {
-		t.equal(
-			err.toString(),
-			'TypeError: xfs.mkdir is not a function',
-			'should fail when the option is not valid for mkdirp.'
-		);
-	}
+	const PATH_ERROR = 'Expected a file path where the data to be written (<string|Buffer|Uint8Array|URL>)';
 
-	try {
-		await outputFile();
-		fail();
-	} catch ({message}) {
-		t.equal(
-			message,
-			'Expected 2 or 3 arguments (<string>, <string|Buffer|Uint8Array>[, <string|Object>], <Function>), but got no arguments.',
-			'should fail when it takes no arguments.'
-		);
-	}
+	t.equal(
+		(await getError('', '')).message,
+		`${PATH_ERROR}, but got '' (empty string).`,
+		'should fail when the first argument is an empty string.'
+	);
 
-	try {
-		await outputFile('1', '2', '3', '4');
-		fail();
-	} catch ({message}) {
-		t.equal(
-			message,
-			'Expected 2 or 3 arguments (<string>, <string|Buffer|Uint8Array>[, <string|Object>], <Function>), but got 4 arguments.',
-			'should fail when it takes too many arguments.'
-		);
-	}
+	t.equal(
+		(await getError(Buffer.alloc(0), '')).message,
+		`${PATH_ERROR}, but got an empty Buffer.`,
+		'should fail when the first argument is an empty Buffer.'
+	);
+
+	t.equal(
+		(await getError(new Uint8Array(), '')).message,
+		`${PATH_ERROR}, but got an empty Uint8Array.`,
+		'should fail when the first argument is an empty Buffer.'
+	);
+
+	t.equal(
+		(await getError('foo', 'bar', 'utf9')).code,
+		'ERR_INVALID_OPT_VALUE_ENCODING',
+		'should fail when the option is not valid for fs.writeFile.'
+	);
+
+	t.equal(
+		(await getError('f/o/o', 'bar', {fs: []})).toString(),
+		'TypeError: xfs.mkdir is not a function',
+		'should fail when the option is not valid for mkdirp.'
+	);
+
+	t.equal(
+		(await getError()).message,
+		'Expected 2 or 3 arguments (<string|Buffer|Uint8Array|URL>, <string|Buffer|Uint8Array>[, <string|Object>], <Function>), but got no arguments.',
+		'should fail when it takes no arguments.'
+	);
+
+	t.equal(
+		(await getError('1', '2', '3', '4')).message,
+		'Expected 2 or 3 arguments (<string|Buffer|Uint8Array|URL>, <string|Buffer|Uint8Array>[, <string|Object>], <Function>), but got 4 arguments.',
+		'should fail when it takes too many arguments.'
+	);
 
 	t.end();
 });

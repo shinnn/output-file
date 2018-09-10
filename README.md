@@ -12,7 +12,7 @@ const {readFile} = require('fs').promises;
 const {resolve} = require('path');
 const outputFile = require('output-file');
 
-// When the direcory `foo` exists:
+// When the directory `foo` exists:
 
 (async () => {
   const createdDir = await outputFile('foo/bar/baz.txt', 'Hi!');
@@ -24,7 +24,10 @@ const outputFile = require('output-file');
 
 ## Difference from [fs.outputFile](https://github.com/jprichardson/node-fs-extra/blob/HEAD/docs/outputFile.md)
 
-This module is very similar to [fs-extra](https://github.com/jprichardson/node-fs-extra)'s `fs.outputFile` but *output-file* will be resolved with the path of the directory created first. [Check the API document for more details.](#outputfilepath-data--options)
+This module is very similar to [fs-extra](https://github.com/jprichardson/node-fs-extra)'s `fs.outputFile` but they are different in the following points:
+
+* *output-file* supports various non-string path types – `Buffer`, `Uint8Array` and `URL`.
+* *output-file* tells a user whether directories are created or not. [Check the API document for more details.](#outputfilepath-data--options)
 
 ## Installation
 
@@ -42,8 +45,8 @@ const outputFile = require('output-file');
 
 ### outputFile(*path*, *data* [, *options*])
 
-*path*: `string`, `Buffer` or `URL`  
-*data*: `string`, `Buffer` or `Uint8Array`  
+*path*: `string` `Buffer` `Uint8Array` `URL`  
+*data*: `string` `Buffer` `Uint8Array`  
 *options*: `Object` or `string` (options for [fs.writeFile] and [mkdirp])  
 Return: `Promise<string|null>`
 
@@ -72,6 +75,8 @@ The returned `Promise` will be resolved with a path of the first directory that 
 })();
 ```
 
+#### options
+
 All options for [fs.writeFile] and [mkdirp] are available.
 
 ```javascript
@@ -85,10 +90,6 @@ const outputFile = require('output-file');
   (await stat('foo')).mode; //=> 33260
 })();
 ```
-
-#### options
-
-All options for [fs.writeFile] and [mkdirp] are available.
 
 Additionally, you can use [`fileMode`](#optionsfilemode) option and [`dirMode`](#optionsdirmode) option to set different permission between the file and directories.
 
