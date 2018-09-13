@@ -2,7 +2,6 @@
 
 const {dirname, relative, resolve, sep} = require('path');
 const {promisify} = require('util');
-const URLConstructor = global.URL || require('url').URL; // eslint-disable-line node/prefer-global/url
 const {access, writeFile} = require('fs');
 
 const mkdirp = require('mkdirp');
@@ -69,7 +68,7 @@ module.exports = async function outputFile(...args) {
 
 	if (typeof filePath === 'string') {
 		absoluteFilePath = resolve(filePath);
-	} else if (filePath instanceof URLConstructor) {
+	} else if (filePath instanceof URL) {
 		absoluteFilePath = fileUriToPath(filePath.toString());
 	} else if (Buffer.isBuffer(filePath)) {
 		absoluteFilePath = resolve(filePath.toString());
