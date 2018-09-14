@@ -32,18 +32,17 @@
 		"nop": "^1.0.0"
 	},
 	"devDependencies": {
-		"@shinnn/eslint-config-node": "^6.0.0",
+		"@shinnn/eslint-config": "^6.7.0",
 		"eslint": "^5.5.0",
 		"file-url": "^2.0.2",
 		"fs-extra": "^7.0.0",
 		"nyc": "^13.0.1",
 		"nyc-config-common": "^1.0.0",
-		"rimraf": "^2.6.2",
 		"rmfr": "^2.0.0",
 		"tape": "^4.9.1"
 	},
 	"eslintConfig": {
-		"extends": "@shinnn/node"
+		"extends": "@shinnn"
 	},
 	"nyc": {
 		"extends": "nyc-config-common"
