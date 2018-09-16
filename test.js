@@ -152,7 +152,13 @@ test('Argument validation', async t => {
 	t.equal(
 		(await getError(new Uint8Array(), '')).message,
 		`${PATH_ERROR}, but got an empty Uint8Array.`,
-		'should fail when the first argument is an empty Buffer.'
+		'should fail when the first argument is an empty Uint8Array.'
+	);
+
+	t.equal(
+		(await getError('foo', 'bar', -0)).code,
+		'ERR_INVALID_ARG_TYPE',
+		'should fail when the option is neither a string nor a plain object.'
 	);
 
 	t.equal(
@@ -169,13 +175,13 @@ test('Argument validation', async t => {
 
 	t.equal(
 		(await getError()).message,
-		'Expected 2 or 3 arguments (<string|Buffer|Uint8Array|URL>, <string|Buffer|Uint8Array>[, <string|Object>], <Function>), but got no arguments.',
+		'Expected 2 or 3 arguments (<string|Buffer|Uint8Array|URL>, <string|Buffer|Uint8Array>[, <string|Object>]), but got no arguments.',
 		'should fail when it takes no arguments.'
 	);
 
 	t.equal(
 		(await getError('1', '2', '3', '4')).message,
-		'Expected 2 or 3 arguments (<string|Buffer|Uint8Array|URL>, <string|Buffer|Uint8Array>[, <string|Object>], <Function>), but got 4 arguments.',
+		'Expected 2 or 3 arguments (<string|Buffer|Uint8Array|URL>, <string|Buffer|Uint8Array>[, <string|Object>]), but got 4 arguments.',
 		'should fail when it takes too many arguments.'
 	);
 
