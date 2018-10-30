@@ -9,25 +9,18 @@ Write a file and create its ancestor directories if needed
 
 ```javascript
 const {readFile} = require('fs').promises;
-const {resolve} = require('path');
 const outputFile = require('output-file');
 
-// When the directory `foo` exists:
-
 (async () => {
-  const createdDir = await outputFile('foo/bar/baz.txt', 'Hi!');
-  //=> /Users/shinnn/example/foo/bar
-
+  await outputFile('foo/bar/baz.txt', 'Hi!');
   await readFile('foo/bar/baz.txt', 'utf8'); //=> 'Hi!'
-});
+})();
 ```
 
-## Difference from [fs.outputFile](https://github.com/jprichardson/node-fs-extra/blob/HEAD/docs/outputFile.md)
+This module is very similar to [fs-extra](https://github.com/jprichardson/node-fs-extra)'s [`fs.outputFile`](https://github.com/jprichardson/node-fs-extra/blob/HEAD/docs/outputFile.md), but has the following features fs-extra doesn't have:
 
-This module is very similar to [fs-extra](https://github.com/jprichardson/node-fs-extra)'s `fs.outputFile` but they are different in the following points:
-
-* *output-file* supports various non-string path types – `Buffer`, `Uint8Array` and `URL`.
-* *output-file* tells a user whether directories are created or not. [Check the API document for more details.](#outputfilepath-data--options)
+* Support for various non-string path types – `Buffer`, `Uint8Array` and `URL`
+* An option to set mode of created directories
 
 ## Installation
 
@@ -47,8 +40,8 @@ const outputFile = require('output-file');
 
 *path*: `string` `Buffer` `Uint8Array` `URL`  
 *data*: `string` `Buffer` `Uint8Array`  
-*options*: `Object` or `string` (options for [fs.writeFile] and [mkdirp])  
-Return: `Promise<string|null>`
+*options*: `Object` or `string` (options for [`fs.writeFile()`][writeFile] and [`fs.mkdir()`][mkdir] with `recursive` option defaulting to `true`)  
+Return: `Promise`
 
 It writes the data to a file asynchronously. If ancestor directories of a file don't exist, it creates those directories before writing a file.
 
@@ -66,32 +59,9 @@ const outputFile = require('output-file');
 })();
 ```
 
-The returned `Promise` will be resolved with a path of the first directory that had to be created, or `null` if no directories are created.
-
-```javascript
-(async () => {
-  await outputFile('foo/bar/baz.txt', 'data'); //=> /Users/shinnn/example/foo
-  await outputFile('foo.txt', 'data'); //=> null
-})();
-```
-
 #### options
 
-All options for [fs.writeFile] and [mkdirp] are available.
-
-```javascript
-const {readFile, stat} = require('fs').promises;
-const outputFile = require('output-file');
-
-(async () => {
-  await outputFile('foo', '234567', {encoding: 'hex', mode: 33260});
-
-  await readFile('foo', 'utf8'); //=> '#Eg'
-  (await stat('foo')).mode; //=> 33260
-})();
-```
-
-Additionally, you can use [`fileMode`](#optionsfilemode) option and [`dirMode`](#optionsdirmode) option to set different permission between the file and directories.
+In addition to [`fs.writeFile()`][writeFile] and [`fs.mkdir()`][mkdir] options, you can use [`fileMode`](#optionsfilemode) option and [`dirMode`](#optionsdirmode) option to set different permission between the file and directories.
 
 ##### options.fileMode
 
@@ -126,5 +96,5 @@ Copyright (c) 2014 - 2018 [Shinnosuke Watanabe](https://github.com/shinnn)
 
 Licensed under [the MIT License](./LICENSE).
 
-[fs.writeFile]: https://nodejs.org/api/fs.html#fs_fs_writefile_file_data_options_callback
-[mkdirp]: https://github.com/substack/node-mkdirp
+[writeFile]: https://nodejs.org/api/fs.html#fs_fs_writefile_file_data_options_callback
+[mkdir]: https://nodejs.org/api/fs.html#fs_fs_mkdir_path_options_callback

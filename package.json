@@ -6,7 +6,7 @@
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
 	"license": "MIT",
 	"scripts": {
-		"bench": "node benchmark.js",
+		"bench": "node --no-warnings benchmark.js",
 		"pretest": "eslint .",
 		"test": "nyc node test.js"
 	},
@@ -27,19 +27,16 @@
 		"promise"
 	],
 	"dependencies": {
-		"file-uri-to-path": "^1.0.0",
 		"inspect-with-kind": "^1.0.5",
 		"is-plain-obj": "^1.1.0",
-		"mkdirp": "^0.5.1",
 		"nop": "^1.0.0"
 	},
 	"devDependencies": {
-		"@shinnn/eslint-config": "^6.7.1",
-		"eslint": "^5.6.0",
-		"file-url": "^2.0.2",
+		"@shinnn/eslint-config": "^6.8.0",
+		"eslint": "^5.8.0",
 		"fs-extra": "^7.0.0",
-		"nyc": "^13.0.1",
-		"nyc-config-common": "^1.0.0",
+		"nyc": "^13.1.0",
+		"nyc-config-common": "^1.0.1",
 		"rmfr": "^2.0.0",
 		"tape": "^4.9.1"
 	},

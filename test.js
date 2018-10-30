@@ -1,9 +1,9 @@
 'use strict';
 
-const {lstat, readFile} = require('fs').promises;
 const {join} = require('path');
+const {lstat, readFile} = require('fs').promises;
+const {pathToFileURL} = require('url');
 
-const fileUrl = require('file-url');
 const outputFile = require('.');
 const rmfr = require('rmfr');
 const test = require('tape');
@@ -13,11 +13,7 @@ test('outputFile()', async t => {
 
 	await Promise.all([
 		(async () => {
-			t.equal(
-				await outputFile('tmp_file', 'foo'),
-				null,
-				'should be resolved with null when it creates no directories.'
-			);
+			await outputFile('tmp_file', 'foo');
 
 			t.equal(
 				await readFile('tmp_file', 'utf8'),
@@ -26,14 +22,10 @@ test('outputFile()', async t => {
 			);
 		})(),
 		(async () => {
-			t.equal(
-				await outputFile(Buffer.from('tmp_dir/foo/bar'), '00', {
-					encoding: 'hex',
-					mode: '0745'
-				}),
-				join(__dirname, 'tmp_dir'),
-				'should be resolved with a path of the directory created first.'
-			);
+			await outputFile(Buffer.from('tmp_dir/foo/bar'), '00', {
+				encoding: 'hex',
+				mode: '0745'
+			});
 
 			const expected = `40${process.platform === 'win32' ? '666' : '745'}`;
 
@@ -56,31 +48,27 @@ test('outputFile()', async t => {
 				t.equal(
 					code,
 					'EISDIR',
-					'should pass an error to the callback when fs.writeFile fails.'
+					'should fail when fs.writeFile fails.'
 				);
 			}
 		})(),
 		(async () => {
 			try {
-				await outputFile('index.js/foo', 'foo', 'utf8');
+				await outputFile('index.js/foo/bar', 'foo');
 			} catch ({code}) {
 				t.equal(
 					code,
-					process.platform === 'win32' ? 'EEXIST' : 'ENOTDIR',
-					'should pass an error to the callback when mkdirp fails.'
+					'ENOTDIR',
+					'should fail when mkdir fails.'
 				);
 			}
 		})(),
 		(async () => {
-			t.equal(
-				await outputFile(new URL(fileUrl('tmp_dir_another/1/2')), 'ə', {
-					dirMode: '0745',
-					fileMode: '0755',
-					encoding: null
-				}),
-				join(__dirname, 'tmp_dir_another'),
-				'should accept an absolute path as its first argument.'
-			);
+			await outputFile(pathToFileURL(join(__dirname, 'tmp_dir_another/1/2')), 'ə', {
+				dirMode: '0745',
+				fileMode: '0755',
+				encoding: null
+			});
 
 			const expected = `40${process.platform === 'win32' ? '666' : '745'}`;
 
@@ -168,9 +156,9 @@ test('Argument validation', async t => {
 	);
 
 	t.equal(
-		(await getError('f/o/o', 'bar', {fs: []})).toString(),
-		'TypeError: xfs.mkdir is not a function',
-		'should fail when the option is not valid for mkdirp.'
+		(await getError('foo', 'bar', {recursive: Symbol('!')})).code,
+		'ERR_INVALID_OPT_VALUE',
+		'should fail when `recursive` option is provided.'
 	);
 
 	t.equal(

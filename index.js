@@ -1,17 +1,16 @@
 'use strict';
 
+const {access, mkdir, writeFile} = require('fs');
 const {dirname, relative, resolve, sep} = require('path');
-const {promisify} = require('util');
-const {access, writeFile} = require('fs');
+const {fileURLToPath} = require('url');
+const {inspect, promisify} = require('util');
 
-const fileUriToPath = require('file-uri-to-path');
 const inspectWithKind = require('inspect-with-kind');
 const isPlainObj = require('is-plain-obj');
-const mkdirp = require('mkdirp');
 const noop = require('nop');
 
 const PATH_ERROR = 'Expected a file path where the data to be written (<string|Buffer|Uint8Array|URL>)';
-const promisifiedMkdirp = promisify(mkdirp);
+const promisifiedMkdir = promisify(mkdir);
 const promisifiedWriteFile = promisify(writeFile);
 
 module.exports = async function outputFile(...args) {
@@ -44,15 +43,13 @@ module.exports = async function outputFile(...args) {
 	// validate the 1st argument
 	access(filePath, noop);
 
-	let mkdirpOptions;
+	let mkdirOptions;
 	let writeFileOptions;
 
 	if (argLen === 3) {
-		if (typeof options === 'string') {
-			mkdirpOptions = null;
-		} else {
+		if (typeof options !== 'string') {
 			if (!isPlainObj(options)) {
-				const error = new TypeError(`Expected an <Object> to set fs.writeFile() and mkdirp() options or an encoding <string>, nut got ${
+				const error = new TypeError(`Expected an <Object> to set fs.writeFile() and fs.mkdir() options or an encoding <string>, nut got ${
 					inspectWithKind(options)
 				}.`);
 				error.code = 'ERR_INVALID_ARG_TYPE';
@@ -60,10 +57,19 @@ module.exports = async function outputFile(...args) {
 				throw error;
 			}
 
+			if (options.recursive !== undefined) {
+				const error = new TypeError(`\`recursive\` defaults to true and unconfigurable, but ${
+					inspect(options.recursive)
+				} was provided for it.`);
+				error.code = 'ERR_INVALID_OPT_VALUE';
+
+				throw error;
+			}
+
 			if (options.dirMode) {
-				mkdirpOptions = {...options, mode: options.dirMode};
+				mkdirOptions = {...options, mode: options.dirMode, recursive: true};
 			} else {
-				mkdirpOptions = options;
+				mkdirOptions = {...options, recursive: true};
 			}
 		}
 
@@ -82,7 +88,7 @@ module.exports = async function outputFile(...args) {
 	if (typeof filePath === 'string') {
 		absoluteFilePath = resolve(filePath);
 	} else if (filePath instanceof URL) {
-		absoluteFilePath = fileUriToPath(filePath.toString());
+		absoluteFilePath = fileURLToPath(filePath);
 	} else if (Buffer.isBuffer(filePath)) {
 		absoluteFilePath = resolve(filePath.toString());
 	} else {
@@ -90,29 +96,10 @@ module.exports = async function outputFile(...args) {
 	}
 
 	if (!relative(process.cwd(), absoluteFilePath).includes(sep)) {
-		await promisifiedWriteFile(absoluteFilePath, data, writeFileOptions);
-		return null;
+		await promisifiedWriteFile(...args);
+		return;
 	}
 
-	const dir = dirname(absoluteFilePath);
-
-	return (await Promise.all([
-		(async () => {
-			const createdDirPath = await promisifiedMkdirp(dir, mkdirpOptions);
-			await promisifiedWriteFile(absoluteFilePath, data, writeFileOptions);
-
-			return createdDirPath;
-		})(),
-		(async () => {
-			try {
-				await promisifiedWriteFile(absoluteFilePath, data, writeFileOptions);
-			} catch (err) {
-				if (err.code === 'ENOENT') {
-					return;
-				}
-
-				throw err;
-			}
-		})()
-	]))[0];
+	await promisifiedMkdir(dirname(absoluteFilePath), mkdirOptions);
+	await promisifiedWriteFile(absoluteFilePath, data, writeFileOptions);
 };
