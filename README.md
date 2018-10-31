@@ -2,7 +2,6 @@
 
 [![npm version](https://img.shields.io/npm/v/output-file.svg?style=flat)](https://www.npmjs.com/package/output-file)
 [![Build Status](https://travis-ci.org/shinnn/output-file.svg)](https://travis-ci.org/shinnn/output-file)
-[![Build status](https://ci.appveyor.com/api/projects/status/q435g7uifts9ud1q?svg=true)](https://ci.appveyor.com/project/ShinnosukeWatanabe/output-file)
 [![Coverage Status](https://img.shields.io/coveralls/shinnn/output-file.svg?style=flat)](https://coveralls.io/github/shinnn/output-file)
 
 Write a file and create its ancestor directories if needed
