@@ -39,7 +39,7 @@ const outputFile = require('output-file');
 
 *path*: `string` `Buffer` `Uint8Array` `URL`  
 *data*: `string` `Buffer` `Uint8Array`  
-*options*: `Object` or `string` (options for [`fs.writeFile()`][writeFile] and [`fs.mkdir()`][mkdir] with `recursive` option defaulting to `true`)  
+*options*: `Object` ([options](#options)) or `string` (file encoding)  
 Return: `Promise`
 
 It writes the data to a file asynchronously. If ancestor directories of a file don't exist, it creates those directories before writing a file.
@@ -60,15 +60,19 @@ const outputFile = require('output-file');
 
 #### options
 
-In addition to [`fs.writeFile()`][writeFile] and [`fs.mkdir()`][mkdir] options, you can use [`fileMode`](#optionsfilemode) option and [`dirMode`](#optionsdirmode) option to set different permission between the file and directories.
+All options for [`fs.writeFile()`][writeFile] and [`fs.mkdir()`][mkdir], except for `mode` and `recursive` are supported.
+
+`recursive` option is enabled by default and cannot be disabled.
+
+Instead of `mode` option, use the followings:
 
 ##### options.fileMode
 
-Set modes of a file, overriding `mode` option.
+Set mode of a file.
 
 ##### options.dirMode
 
-Set modes of directories, overriding `mode` option.
+Set mode of directories.
 
 ```javascript
 const {stat} = require('fs').promises;

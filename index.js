@@ -43,7 +43,7 @@ module.exports = async function outputFile(...args) {
 	// validate the 1st argument
 	access(filePath, noop);
 
-	let mkdirOptions;
+	let mkdirOptions = {recursive: true};
 	let writeFileOptions;
 
 	if (argLen === 3) {
@@ -57,6 +57,15 @@ module.exports = async function outputFile(...args) {
 				throw error;
 			}
 
+			if (options.mode !== undefined) {
+				const error = new TypeError(`output-file doesn't support \`mode\` option, but ${
+					inspect(options.mode)
+				} was provided for it. Use \`fileMode\` option for file mode and \`dirMode\` for director mode.`);
+				error.code = 'ERR_INVALID_OPT_VALUE';
+
+				throw error;
+			}
+
 			if (options.recursive !== undefined) {
 				const error = new TypeError(`\`recursive\` defaults to true and unconfigurable, but ${
 					inspect(options.recursive)
@@ -66,15 +75,17 @@ module.exports = async function outputFile(...args) {
 				throw error;
 			}
 
-			if (options.dirMode) {
-				mkdirOptions = {...options, mode: options.dirMode, recursive: true};
-			} else {
-				mkdirOptions = {...options, recursive: true};
-			}
-		}
+			mkdirOptions = Object.assign(mkdirOptions, options);
 
-		if (options.fileMode) {
-			writeFileOptions = {...options, mode: options.fileMode};
+			if (options.dirMode) {
+				mkdirOptions.mode = options.dirMode;
+			}
+
+			writeFileOptions = {...options};
+
+			if (options.fileMode) {
+				writeFileOptions.mode = options.fileMode;
+			}
 		} else {
 			writeFileOptions = options;
 		}
@@ -96,7 +107,7 @@ module.exports = async function outputFile(...args) {
 	}
 
 	if (!relative(process.cwd(), absoluteFilePath).includes(sep)) {
-		await promisifiedWriteFile(...args);
+		await promisifiedWriteFile(filePath, data, writeFileOptions);
 		return;
 	}
 

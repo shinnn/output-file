@@ -10,7 +10,6 @@ const test = require('tape');
 
 test('outputFile()', async t => {
 	await rmfr('tmp*', {glob: true});
-
 	await Promise.all([
 		(async () => {
 			await outputFile('tmp_file', 'foo');
@@ -22,52 +21,34 @@ test('outputFile()', async t => {
 			);
 		})(),
 		(async () => {
-			await outputFile(Buffer.from('tmp_dir/foo/bar'), '00', {
-				encoding: 'hex',
-				mode: '0745'
-			});
-
-			const expected = `40${process.platform === 'win32' ? '666' : '745'}`;
-
-			t.deepEqual(
-				[(await lstat('tmp_dir')).mode.toString(8), (await lstat('tmp_dir/foo')).mode.toString(8)],
-				[expected, expected],
-				'should accept mkdir\'s option.'
-			);
-
-			t.equal(
-				await readFile('tmp_dir/foo/bar', 'hex'),
-				'00',
-				'should accept fs.writeFile\'s options.'
-			);
-		})(),
-		(async () => {
 			try {
 				await outputFile(new Uint8Array([...__dirname].map(char => char.charCodeAt(0))), 'foo');
+				t.fail('Unexpectedly succeeded');
 			} catch ({code}) {
 				t.equal(
 					code,
 					'EISDIR',
-					'should fail when fs.writeFile fails.'
+					'should fail when fs.writeFile() fails.'
 				);
 			}
 		})(),
 		(async () => {
 			try {
-				await outputFile('index.js/foo/bar', 'foo');
+				await outputFile(Buffer.from(join('.travis.yml', '_')), 'foo', {encoding: null});
+				t.fail('Unexpectedly succeeded');
 			} catch ({code}) {
 				t.equal(
 					code,
-					'ENOTDIR',
-					'should fail when mkdir fails.'
+					'EEXIST',
+					'should fail when fs.mkdir() fails.'
 				);
 			}
 		})(),
 		(async () => {
-			await outputFile(pathToFileURL(join(__dirname, 'tmp_dir_another/1/2')), 'ə', {
+			await outputFile(pathToFileURL(join(__dirname, 'tmp_dir_another/1/2')), '≤≥', {
 				dirMode: '0745',
 				fileMode: '0755',
-				encoding: null
+				encoding: 'base64'
 			});
 
 			const expected = `40${process.platform === 'win32' ? '666' : '745'}`;
@@ -97,8 +78,8 @@ test('outputFile()', async t => {
 				(async () => {
 					t.deepEqual(
 						await readFile('tmp_dir_another/1/2', 'utf8'),
-						'ə',
-						'should write a file in UTF-8 when `encoding` option is null.'
+						Buffer.from('≤≥', 'base64').toString(),
+						'should support fs.writeFile() option.'
 					);
 				})()
 			]);
@@ -153,6 +134,12 @@ test('Argument validation', async t => {
 		(await getError('foo', 'bar', 'utf9')).code,
 		'ERR_INVALID_OPT_VALUE_ENCODING',
 		'should fail when the option is not valid for fs.writeFile.'
+	);
+
+	t.equal(
+		(await getError('foo', 'bar', {mode: 123})).message,
+		'output-file doesn\'t support `mode` option, but 123 was provided for it. Use `fileMode` option for file mode and `dirMode` for director mode.',
+		'should fail when `mode` option is provided.'
 	);
 
 	t.equal(
