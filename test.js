@@ -1,12 +1,15 @@
 'use strict';
 
-const {join} = require('path');
+const {inspect} = require('util');
+const {join, sep} = require('path');
 const {lstat, readFile} = require('fs').promises;
 const {pathToFileURL} = require('url');
 
 const outputFile = require('.');
 const rmfr = require('rmfr');
 const test = require('tape');
+
+const sepCode = sep.charCodeAt(0);
 
 test('outputFile()', async t => {
 	await rmfr('tmp*', {glob: true});
@@ -104,6 +107,12 @@ test('Argument validation', async t => {
 		'should fail when the first argument is not a valid path type.'
 	);
 
+	t.equal(
+		(await getError(new URL('https://localhost:3000'), '')).code,
+		'ERR_INVALID_URL_SCHEME',
+		'should fail when the first argument is a non-file URL.'
+	);
+
 	const PATH_ERROR = 'Expected a file path where the data to be written (<string|Buffer|Uint8Array|URL>)';
 
 	t.equal(
@@ -122,6 +131,32 @@ test('Argument validation', async t => {
 		(await getError(new Uint8Array(), '')).message,
 		`${PATH_ERROR}, but got an empty Uint8Array.`,
 		'should fail when the first argument is an empty Uint8Array.'
+	);
+
+	t.equal(
+		(await getError(`a${sep}`, '')).message,
+		`Expected a file path, not a directory path, but got ${inspect(`a${sep}`)} which ends with a path separator character '${sep}'.`,
+		'should fail when the first argument is a directory path string.'
+	);
+
+	t.equal(
+		(await getError(Buffer.from(`a${sep}`), '')).message,
+		`Expected a file path, not a directory path, but got <Buffer 61 ${sepCode.toString(16)}> which ends with a path separator character '${sep}'.`,
+		'should fail when the first argument is a directory path Buffer.'
+	);
+
+	t.equal(
+		(await getError(new Uint8Array([97, sepCode]), '')).message,
+		`Expected a file path, not a directory path, but got Uint8Array [ 97, ${sepCode} ] which ends with a path separator character '${sep}'.`,
+		'should fail when the first argument is a directory path Uint8Array.'
+	);
+
+	const url = pathToFileURL(`${__dirname}${sep}`);
+
+	t.equal(
+		(await getError(url, '')).message,
+		`Expected a file path, not a directory path, but got a file URL ${url} whose pathname ends with a path separator character '/'.`,
+		'should fail when the first argument is a directory URL.'
 	);
 
 	t.equal(

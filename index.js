@@ -96,14 +96,32 @@ module.exports = async function outputFile(...args) {
 
 	let absoluteFilePath;
 
-	if (typeof filePath === 'string') {
-		absoluteFilePath = resolve(filePath);
-	} else if (filePath instanceof URL) {
+	if (filePath instanceof URL) {
+		if (filePath.pathname.endsWith('/')) {
+			throw new Error(`Expected a file path, not a directory path, but got a file URL ${
+				filePath.toString()
+			} whose pathname ends with a path separator character '/'.`);
+		}
+
 		absoluteFilePath = fileURLToPath(filePath);
-	} else if (Buffer.isBuffer(filePath)) {
-		absoluteFilePath = resolve(filePath.toString());
 	} else {
-		absoluteFilePath = resolve(Buffer.from(filePath).toString());
+		let stringPath;
+
+		if (typeof filePath === 'string') {
+			stringPath = filePath;
+		} else if (Buffer.isBuffer(filePath)) {
+			stringPath = filePath.toString();
+		} else {
+			stringPath = Buffer.from(filePath).toString();
+		}
+
+		if (stringPath.endsWith(sep)) {
+			throw new Error(`Expected a file path, not a directory path, but got ${
+				inspect(filePath, {breakLength: Infinity})
+			} which ends with a path separator character '${sep}'.`);
+		}
+
+		absoluteFilePath = resolve(stringPath);
 	}
 
 	if (!relative(process.cwd(), absoluteFilePath).includes(sep)) {
