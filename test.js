@@ -184,6 +184,22 @@ test('Argument validation', async t => {
 	);
 
 	t.equal(
+		(await getError('foo', new DataView(new ArrayBuffer(16)), {encoding: 'ascii'})).message,
+		'`encoding` option is not supported when the data is not a <string>, but the data is ' +
+		'DataView { byteLength: 16, byteOffset: 0, buffer: ArrayBuffer { byteLength: 16 } } ' +
+		'and \'ascii\' (string) was provided for `encoding` option.',
+		'should fail when the data is a string and `encoding` option is provided.'
+	);
+
+	t.equal(
+		(await getError('foo', new Float64Array(10), 'utf16le')).message,
+		'The third argument cannot be a <string> when the data is not a <string>, ' +
+		'but the data is Float64Array [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ' +
+		'and \'utf16le\' (string) was passed to the third argument.',
+		'should fail when both the data and the third argument are string.'
+	);
+
+	t.equal(
 		(await getError()).message,
 		'Expected 2 or 3 arguments (<string|Buffer|Uint8Array|URL>, <string|Buffer|Uint8Array>[, <string|Object>]), but got no arguments.',
 		'should fail when it takes no arguments.'

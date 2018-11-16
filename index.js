@@ -75,6 +75,12 @@ module.exports = async function outputFile(...args) {
 				throw error;
 			}
 
+			if (typeof data !== 'string' && options.encoding !== null && options.encoding !== undefined) {
+				throw new Error(`\`encoding\` option is not supported when the data is not a <string>, but the data is ${
+					inspectWithKind(data)
+				} and ${inspectWithKind(options.encoding)} was provided for \`encoding\` option.`);
+			}
+
 			mkdirOptions = Object.assign(mkdirOptions, options);
 
 			if (options.dirMode) {
@@ -87,6 +93,12 @@ module.exports = async function outputFile(...args) {
 				writeFileOptions.mode = options.fileMode;
 			}
 		} else {
+			if (typeof data !== 'string') {
+				throw new Error(`The third argument cannot be a <string> when the data is not a <string>, but the data is ${
+					inspectWithKind(data)
+				} and ${inspectWithKind(options)} was passed to the third argument.`);
+			}
+
 			writeFileOptions = options;
 		}
 	}
