@@ -13,6 +13,24 @@ const PATH_ERROR = 'Expected a file path where the data to be written (<string|B
 const promisifiedMkdir = promisify(mkdir);
 const promisifiedWriteFile = promisify(writeFile);
 
+function validatePath(path) {
+	try {
+		access(path, noop);
+	} catch (err) {
+		Error.captureStackTrace(err, validatePath);
+		throw err;
+	}
+}
+
+function validateDataAndWriteFileOptions(data, options) {
+	try {
+		writeFile(__dirname, data, options, noop);
+	} catch (err) {
+		Error.captureStackTrace(err, validateDataAndWriteFileOptions);
+		throw err;
+	}
+}
+
 module.exports = async function outputFile(...args) {
 	const argLen = args.length;
 
@@ -40,8 +58,7 @@ module.exports = async function outputFile(...args) {
 		throw error;
 	}
 
-	// validate the 1st argument
-	access(filePath, noop);
+	validatePath(filePath);
 
 	let mkdirOptions = {recursive: true};
 	let writeFileOptions;
@@ -103,7 +120,7 @@ module.exports = async function outputFile(...args) {
 		}
 	}
 
-	// validate the 2nd and 3rd arguments
+	validateDataAndWriteFileOptions(data, writeFileOptions);
 	writeFile(__dirname, data, writeFileOptions, noop);
 
 	let absoluteFilePath;
