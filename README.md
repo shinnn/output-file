@@ -38,7 +38,7 @@ const outputFile = require('output-file');
 ### outputFile(*path*, *data* [, *options*])
 
 *path*: `string` `Buffer` `Uint8Array` `URL`  
-*data*: `string` `Buffer` `Uint8Array`  
+*data*: `string` `Buffer` `TypedArray` `DataView`  
 *options*: `Object` ([options](#options)) or `string` (file encoding)  
 Return: `Promise`
 
@@ -60,7 +60,7 @@ const outputFile = require('output-file');
 
 #### options
 
-All options for [`fs.writeFile()`][writeFile] and [`fs.mkdir()`][mkdir], except for `mode` and `recursive` are supported.
+All options for [`fs.writeFile()`][writeFile] and [`fs.mkdir()`][mkdir], except for `mode` and `recursive`, are supported.
 
 `recursive` option is enabled by default and cannot be disabled.
 
@@ -95,9 +95,7 @@ const outputFile = require('output-file');
 
 ## License
 
-Copyright (c) 2014 - 2018 [Shinnosuke Watanabe](https://github.com/shinnn)
-
-Licensed under [the MIT License](./LICENSE).
+[ISC License](./LICENSE) © 2018 Shinnosuke Watanabe
 
 [writeFile]: https://nodejs.org/api/fs.html#fs_fs_writefile_file_data_options_callback
 [mkdir]: https://nodejs.org/api/fs.html#fs_fs_mkdir_path_options_callback

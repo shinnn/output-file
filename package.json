@@ -4,7 +4,7 @@
 	"description": "Write a file and create its ancestor directories if needed",
 	"repository": "shinnn/output-file",
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
-	"license": "MIT",
+	"license": "ISC",
 	"scripts": {
 		"bench": "node --no-warnings benchmark.js",
 		"pretest": "eslint .",
