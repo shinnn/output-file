@@ -160,7 +160,7 @@ test('Argument validation', async t => {
 	);
 
 	t.equal(
-		(await getError('foo', 'bar', -0)).code,
+		(await getError('foo', 'bar', new DataView(new ArrayBuffer(16)))).code,
 		'ERR_INVALID_ARG_TYPE',
 		'should fail when the option is neither a string nor a plain object.'
 	);
@@ -184,9 +184,8 @@ test('Argument validation', async t => {
 	);
 
 	t.equal(
-		(await getError('foo', new DataView(new ArrayBuffer(16)), {encoding: 'ascii'})).message,
-		'`encoding` option is not supported when the data is not a <string>, but the data is ' +
-		'DataView { byteLength: 16, byteOffset: 0, buffer: ArrayBuffer { byteLength: 16 } } ' +
+		(await getError('foo', -0, {encoding: 'ascii'})).message,
+		'`encoding` option is not supported when the data is not a <string>, but the data is -0 (number) ' +
 		'and \'ascii\' (string) was provided for `encoding` option.',
 		'should fail when the data is a string and `encoding` option is provided.'
 	);

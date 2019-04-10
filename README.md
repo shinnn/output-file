@@ -1,7 +1,7 @@
 # output-file
 
 [![npm version](https://img.shields.io/npm/v/output-file.svg?style=flat)](https://www.npmjs.com/package/output-file)
-[![Build Status](https://travis-ci.org/shinnn/output-file.svg)](https://travis-ci.org/shinnn/output-file)
+[![Build Status](https://travis-ci.com/shinnn/output-file.svg?branch=master)](https://travis-ci.com/shinnn/output-file)
 [![Coverage Status](https://img.shields.io/coveralls/shinnn/output-file.svg?style=flat)](https://coveralls.io/github/shinnn/output-file)
 
 Write a file and create its ancestor directories if needed
@@ -23,7 +23,7 @@ This module is very similar to [fs-extra](https://github.com/jprichardson/node-f
 
 ## Installation
 
-[Use](https://docs.npmjs.com/cli/install) [npm](https://docs.npmjs.com/getting-started/what-is-npm).
+[Use](https://docs.npmjs.com/cli/install) [npm](https://docs.npmjs.com/about-npm/).
 
 ```
 npm install output-file
@@ -37,10 +37,10 @@ const outputFile = require('output-file');
 
 ### outputFile(*path*, *data* [, *options*])
 
-*path*: `string` `Buffer` `Uint8Array` `URL`  
-*data*: `string` `Buffer` `TypedArray` `DataView`  
+*path*: `string | Buffer | Uint8Array | URL`  
+*data*: `string | Buffer | TypedArray | DataView`  
 *options*: `Object` ([options](#options)) or `string` (file encoding)  
-Return: `Promise`
+Return: `Promise<undefined>`
 
 It writes the data to a file asynchronously. If ancestor directories of a file don't exist, it creates those directories before writing a file.
 
@@ -60,7 +60,7 @@ const outputFile = require('output-file');
 
 #### options
 
-All options for [`fs.writeFile()`][writeFile] and [`fs.mkdir()`][mkdir], except for `mode` and `recursive`, are supported.
+All options for [`fs.promises.writeFile()`](https://nodejs.org/api/fs.html#fs_fspromises_writefile_file_data_options) and [`fs.promises.mkdir()`](https://nodejs.org/api/fs.html#fs_fspromises_mkdir_path_options), except for `mode` and `recursive`, are supported.
 
 `recursive` option is enabled by default and cannot be disabled.
 
@@ -95,7 +95,4 @@ const outputFile = require('output-file');
 
 ## License
 
-[ISC License](./LICENSE) © 2018 Shinnosuke Watanabe
-
-[writeFile]: https://nodejs.org/api/fs.html#fs_fs_writefile_file_data_options_callback
-[mkdir]: https://nodejs.org/api/fs.html#fs_fs_mkdir_path_options_callback
+[ISC License](./LICENSE) © 2018 - 2019 Shinnosuke Watanabe

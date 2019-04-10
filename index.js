@@ -1,17 +1,15 @@
 'use strict';
 
-const {access, mkdir, writeFile} = require('fs');
+const {access, promises: {mkdir, writeFile}, writeFile: writeFileCallback} = require('fs');
 const {dirname, relative, resolve, sep} = require('path');
 const {fileURLToPath} = require('url');
-const {inspect, promisify} = require('util');
+const {inspect} = require('util');
 
 const inspectWithKind = require('inspect-with-kind');
 const isPlainObj = require('is-plain-obj');
 const noop = require('nop');
 
 const PATH_ERROR = 'Expected a file path where the data to be written (<string|Buffer|Uint8Array|URL>)';
-const promisifiedMkdir = promisify(mkdir);
-const promisifiedWriteFile = promisify(writeFile);
 
 function validatePath(path) {
 	try {
@@ -24,7 +22,7 @@ function validatePath(path) {
 
 function validateDataAndWriteFileOptions(data, options) {
 	try {
-		writeFile(__dirname, data, options, noop);
+		writeFileCallback(__dirname, data, options, noop);
 	} catch (err) {
 		Error.captureStackTrace(err, validateDataAndWriteFileOptions);
 		throw err;
@@ -66,7 +64,7 @@ module.exports = async function outputFile(...args) {
 	if (argLen === 3) {
 		if (typeof options !== 'string') {
 			if (!isPlainObj(options)) {
-				const error = new TypeError(`Expected an <Object> to set fs.writeFile() and fs.mkdir() options or an encoding <string>, nut got ${
+				const error = new TypeError(`Expected an <Object> to set fs.promises.writeFile() and fs.promises.mkdir() options or an encoding <string>, nut got ${
 					inspectWithKind(options)
 				}.`);
 				error.code = 'ERR_INVALID_ARG_TYPE';
@@ -121,7 +119,7 @@ module.exports = async function outputFile(...args) {
 	}
 
 	validateDataAndWriteFileOptions(data, writeFileOptions);
-	writeFile(__dirname, data, writeFileOptions, noop);
+	writeFileCallback(__dirname, data, writeFileOptions, noop);
 
 	let absoluteFilePath;
 
@@ -154,10 +152,10 @@ module.exports = async function outputFile(...args) {
 	}
 
 	if (!relative(process.cwd(), absoluteFilePath).includes(sep)) {
-		await promisifiedWriteFile(filePath, data, writeFileOptions);
+		await writeFile(filePath, data, writeFileOptions);
 		return;
 	}
 
-	await promisifiedMkdir(dirname(absoluteFilePath), mkdirOptions);
-	await promisifiedWriteFile(absoluteFilePath, data, writeFileOptions);
+	await mkdir(dirname(absoluteFilePath), mkdirOptions);
+	await writeFile(absoluteFilePath, data, writeFileOptions);
 };
