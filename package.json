@@ -1,6 +1,6 @@
 {
 	"name": "output-file",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Write a file and create its ancestor directories if needed",
 	"repository": "shinnn/output-file",
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
@@ -32,13 +32,13 @@
 		"nop": "^1.0.0"
 	},
 	"devDependencies": {
-		"@shinnn/eslint-config": "^6.8.1",
-		"eslint": "^5.9.0",
+		"@shinnn/eslint-config": "^6.10.1",
+		"eslint": "^5.16.0",
 		"fs-extra": "^7.0.1",
-		"nyc": "^13.1.0",
+		"nyc": "^13.3.0",
 		"nyc-config-common": "^1.0.1",
 		"rmfr": "^2.0.0",
-		"tape": "^4.9.1"
+		"tape": "^4.10.1"
 	},
 	"eslintConfig": {
 		"extends": "@shinnn"
