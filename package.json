@@ -6,9 +6,9 @@
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
 	"license": "ISC",
 	"scripts": {
-		"bench": "node --no-warnings benchmark.js",
+		"bench": "node benchmark.js",
 		"pretest": "eslint .",
-		"test": "nyc node test.js"
+		"test": "coverage test.js"
 	},
 	"files": [
 		"index.js"
@@ -28,22 +28,18 @@
 	],
 	"dependencies": {
 		"inspect-with-kind": "^1.0.5",
-		"is-plain-obj": "^1.1.0",
+		"is-plain-obj": "^2.0.0",
 		"nop": "^1.0.0"
 	},
 	"devDependencies": {
-		"@shinnn/eslint-config": "^6.10.1",
+		"@shinnn/eslint-config": "^6.10.2",
+		"coverage": "^0.1.5",
 		"eslint": "^5.16.0",
 		"fs-extra": "^7.0.1",
-		"nyc": "^13.3.0",
-		"nyc-config-common": "^1.0.1",
 		"rmfr": "^2.0.0",
 		"tape": "^4.10.1"
 	},
 	"eslintConfig": {
 		"extends": "@shinnn"
-	},
-	"nyc": {
-		"extends": "nyc-config-common"
 	}
 }

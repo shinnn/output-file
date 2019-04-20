@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/output-file.svg?style=flat)](https://www.npmjs.com/package/output-file)
 [![Build Status](https://travis-ci.com/shinnn/output-file.svg?branch=master)](https://travis-ci.com/shinnn/output-file)
-[![Coverage Status](https://img.shields.io/coveralls/shinnn/output-file.svg?style=flat)](https://coveralls.io/github/shinnn/output-file)
+[![codecov](https://codecov.io/gh/shinnn/output-file/branch/master/graph/badge.svg)](https://codecov.io/gh/shinnn/output-file)
 
 Write a file and create its ancestor directories if needed
 
